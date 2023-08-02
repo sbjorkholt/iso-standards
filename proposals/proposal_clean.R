@@ -3,7 +3,7 @@ library(tidyverse)
 
 # Manually collected from ISO's own internal wikipedia and data from the webpage of SN (Standard Norway). 
 
-proposals <- read_csv("proposals.csv")
+proposals <- read_csv("../../data/final_data/proposals.csv")
 
 proposals <- proposals %>%
   rename(sdo = acronym) %>%

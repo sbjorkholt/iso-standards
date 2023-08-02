@@ -3,9 +3,9 @@
 
 # List up files from folders
 
-dates_table_list <- list.files("../data/dates_table/", pattern = "dates_table.*csv", full.names = TRUE) 
+dates_table_list <- list.files("../../data/dates_table/", pattern = "dates_table.*rds", full.names = TRUE) 
 
-life_cycle_list <- list.files("../data/life_cycle/", pattern = "life_cycle.*csv", full.names = TRUE)
+life_cycle_list <- list.files("../../data/life_cycle/", pattern = "life_cycle.*csv", full.names = TRUE)
 
 # Read the files into R
 
@@ -17,10 +17,7 @@ for (i in 1:length(dates_table_list)) {
   it <- 100 * i / length(unique(dates_table_list))
   cat(paste0(sprintf("Progress: %.2f%%         ", it), "\r"))
   
-  data <- vroom(dates_table_list[[i]], 
-                col_select = c(2, 3), # Choose the second and third column to avoid the `...1` variable
-                col_types = c(.default = "c"), # Set all columns to character
-                .name_repair = "minimal") # Do not do any name repairs
+  data <- read_rds(dates_table_list[[i]])
   
   dates_table_data[[i]] <- data %>%
     mutate(stdno = str_extract(dates_table_list[[i]], "[0-9]+")) 
@@ -49,10 +46,10 @@ for (i in 1:length(life_cycle_list)) {
 
 life_cycle_data <- discard(life_cycle_data, function(z) nrow(z) == 0)
 
-# Some poorly written code in order to take out the standard that is present in the life_cycle list but not the dates_table list
+# Removing standards that are in one dataset but not the other
 
 unnested_dates_table <- tibble(dates_table = dates_table_data) %>% 
-  unnest(dates_table) 
+  unnest(dates_table)
 
 unnested_life_cycle <- tibble(life_cycle = life_cycle_data) %>% 
   unnest(life_cycle) 
@@ -60,50 +57,51 @@ unnested_life_cycle <- tibble(life_cycle = life_cycle_data) %>%
 lost_stdno <- vecsets::vsetdiff(unnested_dates_table %>% pull(stdno) %>% unique(), 
                                 unnested_life_cycle %>% pull(stdno) %>% unique())
 
-dates_table_data <- dates_table_data %>%
-  tibble() %>% rowid_to_column() %>% 
-  unnest() %>% 
-  filter(!stdno %in% lost_stdno) %>% 
-  group_by(rowid) %>%
-  nest() %>% 
-  ungroup() %>%
-  select(-rowid)
+dates_table_data2 <- tibble(dates_table = dates_table_data) %>% 
+  rowid_to_column() %>% 
+  unnest(cols = c(dates_table)) %>%
+  unnest(cols = c(data)) %>%
+  mutate(variable = ifelse(variable == "abstract", "Abstract",
+                           variable)) %>%
+  filter(!stdno %in% lost_stdno) 
 
 # Put files together and make two variables for the committee name, the committee title, the ICS name and the ICS id
-committee <- dates_table_data %>%
-  unnest() %>%
+committee <- dates_table_data2 %>%
   filter(variable == "Technical Committee") %>%
-  pull(value)
+  mutate(value = str_squish(str_extract(value, "ISO/(TMBG)?(IEC JTC 1)?(TC [0-9]+)?( [0-9]+)?(\\s+)?(\\/SC [0-9]+)?( [0-9]+)?"))) %>%
+  mutate(value = str_replace_all(value, "(?<=\\d)\\s(?=\\d)", "")) %>%
+  pull(value) 
 
-title <- dates_table_data %>%
-  unnest() %>%
-  .[which(.$variable == "Technical Committee") + c(1),] %>%
-  pull(variable)
+title <- dates_table_data2 %>%
+  filter(variable == "Technical Committee") %>%
+  mutate(value = str_squish(str_remove_all(value, "ISO/(TMBG)?(IEC JTC 1)?(TC [0-9]+)?( [0-9]+)? (\\/SC [0-9]+)?( [0-9]+)?"))) %>%
+  mutate(value = ifelse(value == "ISO/TMBG", "Technical Management Board Group", value)) %>%
+  pull(value) 
 
-ics_id <- dates_table_data %>%
-  unnest() %>%
-  filter(variable == "ICS") %>%
-  pull(value)
+stdnos <- dates_table_data2 %>% pull(stdno) %>% unique()
 
-ics_name <- dates_table_data %>%
-  unnest() %>%
-  .[which(.$variable == "ICS") + c(1),] %>%
-  mutate(variable = ifelse(variable == "Status", NA, variable)) %>%
-  pull(variable)
+status_df <- dates_table_data2 %>% select(rowid, stdno, variable, value) %>% spread(variable, value)
+
+## For alternative ICS:
+# https://github.com/metanorma/iso-ics-codes.git
 
 # Put all information together in one dataframe
-standards_df <- tibble(title = title,
+standards_df <- tibble(stdno = status_df$stdno,
+                       rowid = status_df$rowid,
+                       title = title,
                        committee = committee,
-                       ics_name = ics_name,
-                       ics_id = ics_id,
-                       dates_table = dates_table_data$data,
-                       life_cycle = life_cycle_data,
-                       link = paste0("https://www.iso.org/standard/", unnest(dates_table_data) %>% pull(stdno) %>% unique(), ".html?browse=tc")) 
-
-
-standards_df <- readRDS("C:/Users/solvebjo/OneDrive - Universitetet i Oslo/PhD/Paper 2 - Standards/data/standards_df_09_09_2022.rds")
-
-#### FINAL CLEANING ####
+                       status = status_df$Status,
+                       publication_date = status_df$`Publication date`,
+                       edition = status_df$Edition,
+                       pages = status_df$`Number of pages`,
+                       abstract = status_df$Abstract,
+                       ics = dates_table_data2 %>% select(ICS, rowid, stdno) %>% group_by(rowid, stdno) %>% nest() %>% ungroup() %>% select(-c(rowid, stdno)),
+                       sdgs = dates_table_data2 %>% select(SDGs, rowid, stdno) %>% group_by(rowid, stdno) %>% nest() %>% ungroup() %>% select(-c(rowid, stdno))) %>%
+  unnest() %>%
+  rename(ics = data, 
+         sdgs = data1) %>%
+  mutate(life_cycle = life_cycle_data,
+         link = paste0("https://www.iso.org/standard/", stdnos, ".html?browse=tc"))
 
 ## Life cycle
 
@@ -115,87 +113,11 @@ standards_df <- standards_df %>%
          life_cycle = map(life_cycle,
                           ~ mutate(., value = str_remove(value, "[0-9]{2} "))))
 
-## Status
-
-status <- standards_df %>%
-  mutate(dates_table = map(dates_table, 
-                           ~ filter(., variable %in% c("Status", "Number of pages", "Edition", "Publication date"))),
-         dates_table = map(dates_table,
-                           ~ pivot_wider(., names_from = variable, values_from = value))) %>%
-  unnest(dates_table) %>%
-  rename(status = Status,
-         pages = `Number of pages`,
-         edition = Edition,
-         publication_date = `Publication date`) %>%
-  select(stdno, title, committee, ics_name, ics_id, status, publication_date, edition, pages, life_cycle, link)
-
-## Sustainability goals
-
-goals <- standards_df %>%
-  rowid_to_column() %>%
-  select(rowid, committee, title, dates_table) %>%
-  unnest(dates_table) %>%
-  filter(str_detect(variable, "^[0-9]{1,2} ") | str_detect(variable, "Status")) %>% #".{60,}")) %>%
-  mutate(variable = str_squish(variable)) %>%
-  mutate(value = str_squish(value)) %>%
-  group_by(rowid) %>%
-  filter(!str_detect(variable, "[0-9] This")) %>%
-  rename(sustainability = variable) %>%
-  select(-value) %>%
-  mutate(sustainability = str_split(sustainability,"\\s+([0-9]{1,2})")) %>%
-  ungroup() %>%
-  unnest(sustainability) %>%
-  mutate(sustainability = str_remove_all(sustainability, "[0-9]{1,2}"),
-         sustainability = str_squish(sustainability)) %>%
-  mutate(sustainability = ifelse(sustainability == "Status", 0, sustainability)) %>%
-  group_by(rowid) %>%
-  nest(sustainability = c(sustainability)) %>%
-  mutate(goals_dich = map_dbl(sustainability, nrow),
-         goals_dich = ifelse(goals_dich == 1, 0, 1)) %>%
-  ungroup() %>%
-  unnest() %>%
-  mutate(sustainability = ifelse(sustainability == 0 & goals_dich == 1, NA,
-                                 ifelse(sustainability == 0, "",
-                                        sustainability))) %>%
-  filter(sustainability %in% c("Industry, Innovation and Infrastructure", "Good Health and Well-being", "Responsible Consumption and Production",
-                               "Decent Work and Economic Growth", "Sustainable Cities and Communities", "Life on Land",
-                               "Climate Action", "Affordable and Clean Energy", "Zero Hunger", "Reduced Inequalities",
-                               "Clean Water and Sanitation", "Quality Education", "No Poverty", "Life Below Water",
-                               "Gender Equality", "Peace, Justice and Strong Institutions")) %>%
-  nest(goals_cat = c(sustainability)) %>%
-  ungroup() %>%
-  select(-rowid)
-
-
-standards_df2 <- left_join(status, goals, 
-                          by = c("stdno", "title", "committee"))
-
-## Abstracts
-
-abstracts <- standards_df %>%
-  select(title, committee, dates_table) %>%
-  unnest() %>%
-  mutate(nvariable = nchar(stringr::str_conv(variable, "UTF-8")),
-         nvalue = nchar(str_conv(value, "UTF-8"))) %>%
-  filter(nvariable >= 100 | nvalue >= 100) %>%
-  mutate(sustainability = str_detect(variable, "^([0-9]{1,2})")) %>%
-  mutate(variable = replace_na(variable, ""),
-         value = replace_na(value, ""),
-         value = str_c(" ", value)) %>%
-  mutate(abstract1 = str_c(variable, value)) %>%
-  filter(sustainability != TRUE) %>%
-  group_by(stdno) %>%
-  mutate(abstract = paste0(abstract1, collapse = " ")) %>%
-  select(title, committee, stdno, abstract) %>%
-  unique() %>% 
-  ungroup()
-
-standards_df <- left_join(standards_df2, abstracts, 
-                          by = c("stdno", "title", "committee"))
-
-standards_df <- standards_df %>% 
-  select(stdno, title, committee, ics_name, ics_id, status, publication_date, edition, pages, abstract, goals_dich, goals_cat, life_cycle, link)
-
+standards_df <- standards_df %>%
+  unnest(ics) %>%
+  unique() %>%
+  unnest(sdgs) %>%
+  unique()
 
 ## Save the dataset to folder
 saveRDS(standards_df, file = "../../data/final_data/standards_df.rds")

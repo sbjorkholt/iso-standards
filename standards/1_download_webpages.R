@@ -1,7 +1,7 @@
 
 #### STEP 1 ####
 
-exists <- list.files("../data/webpages/") %>%
+exists <- list.files("../../data/webpages/") %>%
   str_replace_all(., "_", "") %>%
   str_c("https://www.iso.org/standard/", ., "?browse=tc")
 
@@ -22,24 +22,34 @@ html_test_tibble <- tibble(html_test) %>%
 
 for (i in 1:nrow(html_test_tibble)) { # Loop through and download all the webpages that have operative links
   
-  tryCatch({
-    
-    standard_no <- str_extract(html_test_tibble$html_test[i], "[0-9]+")
-    
-    suppressWarnings(download.file(html_test[i], # Download the html-file into a folder
-                                   destfile = paste0("../data/test/", "_", standard_no, "_", ".html"), quiet=TRUE))
-    
-    message(paste("Downloading webpage no.", i, ", standard no.", standard_no)) # If the link has content, throw message
-    
-  }, 
+  standard_no <- str_extract(html_test_tibble$html_test[i], "[0-9]+") # The standard number
   
-  error = function(cond){
+  destfile <- paste0("../../data/webpages/", "_", standard_no, "_", ".html") # The folder where files are downloaded to
+  
+  if(!file.exists(destfile)){ # Do not download if file exists in folder already
     
-    message(paste("No webpage for webpage no.", i)) # If there is no standard at the link, throw message
+    tryCatch({
+      
+      suppressWarnings(download.file(html_test[i], # Download the html-file into a folder
+                                     destfile = destfile, quiet=TRUE))
+      
+      message(paste("Downloading webpage no.", i, ", standard no.", standard_no)) # If the link has content, throw message
+      
+    }, 
+    
+    error = function(cond){
+      
+      message(paste("No webpage for webpage no.", i)) # If there is no standard at the link, throw message
+      
+    })
+    
+  } else {
+    
+    message("Webpage no. ", i, " already downloaded.") # If file exist in folder already, throw message
+    
+  }
   
-  })
-  
-  Sys.sleep(2) 
+  Sys.sleep(5) 
   
   print(paste("Done with no.", i))
   

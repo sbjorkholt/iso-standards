@@ -3,15 +3,23 @@
 #################################                           CLEANING                             ##############################
 ###############################################################################################################################
 
+participant_v1 <- read_rds("../../data/archive_members/participants_v1.rds")
+participant_v2 <- read_rds("../../data/archive_members/participants_v2.rds")
+participant_v3 <- read_rds("../../data/archive_members/participants_v3.rds")
+participant_v4 <- read_rds("../../data/archive_members/participants_v4.rds")
+participant_current_2022 <- read_rds("../../data/archive_members/participants_current_2022.rds")
+participant_current_2023 <- read_rds("../../data/archive_members/participants_current_2023.rds")
+
 #### 1. Order data and fix names so that they correspond over time ####
 
-membership_wayback <- rbind(membership_v1, # Bind together data from all webpage versions
-                            membership_v2,
-                            membership_v3,
-                            membership_v4,
-                            membership_current)
+participant_wayback <- rbind(participant_v1, # Bind together data from all webpage versions
+                            participant_v2,
+                            participant_v3,
+                            participant_v4,
+                            participant_current_2022,
+                            participant_current_2023)
 
-membership_wayback <- membership_wayback %>%
+participant_wayback <- participant_wayback %>%
   mutate(country = str_squish(country)) %>% # Remove any whitespace from the country variable
   # Change names of countries that have had encoding trouble, changed names or otherwise inconsistent coding
   mutate(country = case_when(country == "Bolivia, Plurinational State of" ~ "Bolivia",
@@ -27,7 +35,8 @@ membership_wayback <- membership_wayback %>%
                              country == "Libyan Arab Jamahiriya" ~ "Libya",
                              country == "Macao Special Administrative Region of China" ~ "Macao",
                              country == "Moldova, Republic of" ~ "Moldova",
-                             country == "Russian Federation (GOST R)" ~ "Russain Federation",
+                             country == "Russian Federation (GOST R)" ~ "Russian Federation",
+                             country == "Russain Federation" ~ "Russian Federation",
                              country == "Singapore (SPRING SG)" ~ "Singapore",
                              country == "Greece (NQIS ELOT)" ~ "Greece",
                              country == "Syrian Arab Republic" ~ "Syria",
@@ -124,7 +133,7 @@ membership_wayback <- membership_wayback %>%
                                                ifelse(webid == "1533", "BTMD",
                                                       ifelse(webid == "1725", "IES", acronym)))))))
 
-membership_per_year <- membership_wayback %>% # Make a dataset with country-year units
+participant_per_year <- participant_wayback %>% # Make a dataset with country-year units
   mutate(year = str_extract(date, "[0-9]{4}")) %>% # Extract the years
   select(-c(date, webid)) %>% # Remove variables used in scraping
   unique() # Find the unique rows
@@ -132,11 +141,19 @@ membership_per_year <- membership_wayback %>% # Make a dataset with country-year
 
 #### 2. Add missing for the webpages that were not available ####
 
+participant_per_year <- participant_per_year %>%
+  group_by(country, acronym, membership) %>%
+  mutate(impute_year_1 = 0) %>%
+  mutate(year = as.numeric(year)) %>%
+  complete(year = seq(min(year), max(year), by = 1)) %>%
+  mutate(impute_year_1 = ifelse(is.na(impute_year_1), 1, impute_year_1)) %>%
+  ungroup()
+
 # Make a dataframe with all the potential years, memberships and country combinations there are
-years <- as.character(c(2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022))
-memberships <- membership_wayback %>% select(membership) %>% unique() %>% pull(membership)
-countries <- membership_wayback %>% select(country, acronym) %>% unique() %>% na.omit() %>% pull(country)
-acronyms <- membership_wayback %>% select(country, acronym) %>% unique() %>% na.omit() %>% pull(acronym)
+years <- as.character(c(2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023))
+memberships <- participant_wayback %>% select(membership) %>% unique() %>% pull(membership)
+countries <- participant_wayback %>% select(country, acronym) %>% unique() %>% na.omit() %>% pull(country)
+acronyms <- participant_wayback %>% select(country, acronym) %>% unique() %>% na.omit() %>% pull(acronym)
 
 countries_full <- tibble(country = rep(countries, each = length(years)),
                          acronym = rep(acronyms, each = length(years)),
@@ -148,8 +165,11 @@ countries_full <- tibble(country = rep(countries, each = length(years)),
   gather(4:7, key = "membership", value = "value") %>% # And gathering them to get everything into a long dataframe
   select(-value) # Remove this extra variable
 
-membership_per_year_na <- membership_per_year %>%
-  right_join(countries_full, by = c("country", "year", "acronym", "membership")) # Right join so that all rows without data originally are now given NA
+membership_per_year_na <- participant_per_year %>%
+  mutate(impute_year_2 = 0) %>%
+  mutate(year = as.character(year)) %>%
+  full_join(countries_full, by = c("country", "year", "acronym", "membership")) %>%# Right join so that all rows without data originally are now given NA
+  mutate(impute_year_2 = ifelse(is.na(impute_year_2), 1, impute_year_2))
 # OBS: NAs might both be because the given country was not in a technical committee at that time, and because Wayback did not save that webpage
 
 
@@ -161,18 +181,21 @@ membership_per_year_na <- membership_per_year %>%
 # (assuming that a country being in a committee in 2016 means it is also in that committee in 2002 is simply unrealistic)
 # the rule is thus: If data for committees is missing for 2004-2021, repeat this committee information from previous closest year containing data
 
-membership_per_year_na_new <- membership_per_year_na %>%
+membership_per_year_na_new1 <- membership_per_year_na %>%
   mutate(year = as.numeric(year)) %>%
   # Creating a variable to sort out rows for 2001, 2002 and 2003. There is too little data on these years to warrant imputation.
   # Also filtering out year 2022 in this variable. Data from 2022 is certainly correct, so if there is missing here, it's because the country was not in a committee at that time
-  mutate(var = ifelse(is.na(committee) & year < 2004 | is.na(committee) & year == 2022, "ok1",
+  mutate(var = ifelse(is.na(committee) & year < 2004 | is.na(committee) & year == 2023 & year == 2022, "ok1",
                       # Also making a variable for the available years, just in case
-                      ifelse(!is.na(committee) & year < 2004 | !is.na(committee) & year != 2022, "ok2", 
-                             "missing"))) %>% # Adding a missing variable
+                      ifelse(!is.na(committee) & year < 2004 | !is.na(committee) & year != 2023 & year != 2022, "ok2", 
+                             "missing")))
+
+membership_per_year_na_new <- membership_per_year_na_new1 %>% # Adding a missing variable
   filter(var != "ok1") %>%
   select(-var)
 
-countries <- membership_per_year_na_new %>% select(country) %>% pull() %>% unique() # To not make a mess, loop over each year separately
+countries <- membership_per_year_na_new %>% select(country) %>% filter(country != "Serbia and Montenegro") %>% # Serbia and Montenegro separated, and should thus not be imputed
+  pull() %>% unique() # To not make a mess, loop over each year separately
 
 # And do it one time for each membership type (this could have been a loop within a loop, but to avoid unnecessary confusion, I do it a bit less elegantly)
 pmembers <- list()
@@ -224,7 +247,7 @@ for (i in 1:length(countries)) {
 secretariat <- list() # Repeat procedure for secretariat
 
 for (i in 1:length(countries)) {
-  
+
   tmp <- membership_per_year_na_new %>%
     mutate(year = as.numeric(year)) %>%
     filter(country == countries[i]) %>%
@@ -235,13 +258,13 @@ for (i in 1:length(countries)) {
     arrange(-desc(year)) %>%
     ungroup() %>%
     mutate(change = ifelse(lead(impute) == 1 & impute == 0, 1, 0))
-  
+
   secretariat[[i]] <- tmp %>%
-    mutate(data2 = ifelse(impute == 1, 
+    mutate(data2 = ifelse(impute == 1,
                           tmp %>% filter(impute == 0 & change == 1) %>% select(data) %>% pull(),
                           data)) %>%
     select(-change)
-  
+
 }
 
 # Make dataframes of the lists and bind them together to one dataframe
@@ -252,17 +275,46 @@ membership_per_year_na_impute <- bind_rows(do.call(rbind, pmembers),
   unnest(cols = c(data2)) # Unnest the new imputed variable
 
 twinned_secretariat <- membership_per_year_na_new %>%
-  filter(membership == "Twinned secretariat") %>%
+  filter(membership %in% c("Twinned secretariat")) %>%
   na.omit() 
 
 membership_per_year_na_impute <- bind_rows(membership_per_year_na_impute, twinned_secretariat)
   
+membership_per_year_na_impute <- bind_rows(membership_per_year_na_impute, membership_per_year_na_new1 %>% 
+                                             filter(var == "ok1") %>% select(-var)) %>%
+  drop_na(committee, title) %>%
+  distinct() %>%
+  filter(!year %in% c(2002, 2003))
+
 memberships <- membership_per_year_na_impute %>%  
   rename(sdo = acronym) %>%
-  select(country, sdo, year, title, committee, membership, standby, impute)
+  select(country, sdo, year, title, committee, membership, standby, impute) %>%
+  distinct(country, sdo, year, committee, membership, standby, impute, .keep_all = TRUE) # Distinct due to some titles of committees having big and small letters leading to duplicates
 
-saveRDS(memberships, file = "../../data/final_data/memberships.rds")
+# Removing duplicates in secretariat
+participants <- memberships %>%
+  group_by(committee, title, year, membership) %>%
+  add_count(sort = T) %>%
+  mutate(impute_error = ifelse(membership == "Secretariat" & impute == 1 & n >= 2, "error", "ok")) %>% # If it's imputed and more than two countries sit in the secretariat
+  filter(impute_error != "error") %>%  # Then remove the country that is imputed
+  mutate(date_duplicate = ifelse(country == "United States" & year == 2013 & committee == "TC 28" & membership == "Secretariat", 1, 0), # Some duplicates are due to change in secretariat over the year
+         date_duplicate = ifelse(country == "Portugal" & year == 2011 & committee == "TC 38/SC 24" & membership == "Secretariat", 1, date_duplicate)) %>% # This is easy to see when it goes to twin secretariat, cause then you have 3 countries for one year
+  filter(date_duplicate != 1) %>%
+  mutate(membership = ifelse(membership == "Secretariat" & n == 2, "Twinned secretariat", membership)) # For the last there might also be a shift half-year, but I assume twinned secretariat based on some checks
 
+participants %>%
+  na.omit() %>%
+  mutate(` ` = ifelse(impute == 0, "Original", "Imputed")) %>%
+  ggplot(aes(year, country, fill = ` `)) +
+  scale_fill_manual(values = c("gray", "black")) +
+  geom_tile() +
+  labs(x = "", y = "") +
+  facet_wrap(~ membership) +
+  theme_classic() +
+  theme(legend.position = "bottom",
+        axis.text.y = element_text(size = 6))
+
+saveRDS(participants, file = "../../data/final_data/participants.rds")
 
 ### 4. Checking data on plots ###
 

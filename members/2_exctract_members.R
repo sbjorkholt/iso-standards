@@ -6,12 +6,14 @@
 
 ##### VERSION 1 #####
 
-files <- list.files("../../data/archive/version1/", full.names = TRUE) # List up the downloaded webpages
-names <- read_csv("../../data/archive/acronyms_v1.csv") %>% select(acronym, country) # Read in csv with list of standard body names and country they belong to 
+files <- list.files("../../data/archive_members/version1/", full.names = TRUE) # List up the downloaded webpages
+names <- read_csv("../../data/archive_members/acronyms_v1.csv") %>% janitor::clean_names() %>% select(acronym, country) # Read in csv with list of standard body names and country they belong to 
 
 members_v1 <- function(page) {
   
-  name <- str_remove_all(page, "../../data/archive/version1/|_[0-9]+-[0-9]+-[0-9]+.htm") %>% # Remove date from linkname, stripping down to acronym
+  tryCatch({
+    
+  name <- str_remove_all(page, "../../data/archive_members/version1/|_[0-9]+-[0-9]+-[0-9]+.htm") %>% # Remove date from linkname, stripping down to acronym
     tibble(acronym = .) %>% # Make a tibble
     left_join(names, by = "acronym") # Left join with csv-file with country names
   
@@ -30,24 +32,31 @@ members_v1 <- function(page) {
                      date = date,
                      committee = table$X2,
                      title = table$X3,
-                     membership = table$X4) 
+                     membership = table$X4,
+                     webid = str_remove_all(page, "../../data/archive_members/version1/|_[0-9]{4}-[0-9]{2}-[0-9]{2}.htm")) 
   
   return(timeback)
+  
+}, error=function(e){message("Parsing error occurred at webpage ", page)})
   
 }
 
 membership_v1 <- lapply(files, members_v1) # Run the function on all webpages from the first version
 
-membership_v1_table <- do.call(rbind, membership_v1) %>% # Bind the lists into a dataframe
-  mutate(webid = "") # Add variable to make the dataframes consistent over time (but there are no webids for the first version of the webpage)
+membership_v1_table <- do.call(rbind, membership_v1) # Bind the lists into a dataframe
 
+# saveRDS(membership_v1_table, file = "../../data/archive_members/participants_v1.rds")
 
 ##### VERSION 2 #####
 
-files <- list.files("../../data/archive/version2/", full.names = TRUE)
+files <- list.files("../../data/archive_members/version2/", full.names = TRUE) %>%
+  str_remove("../../data/archive_members/version2/pdc") %>%
+  stringi::stri_remove_empty_na()
 
 members_v2 <- function(page) {
   
+  tryCatch({
+    
   acronym <- read_html(page) %>%
     html_node("h2") %>% # Here, we find the acronym in the h2 node of the webpage
     html_text() %>% # Parse to text
@@ -79,9 +88,11 @@ members_v2 <- function(page) {
                      committee = str_squish(table$committee),
                      title = str_squish(table$title),
                      membership = table$membership,
-                     webid = str_remove_all(files[320], "../../data/archive/version2/|_[0-9]{4}-[0-9]{2}-[0-9]{2}.htm"))
+                     webid = str_remove_all(page, "../../data/archive_members/version2/|_[0-9]{4}-[0-9]{2}-[0-9]{2}.htm"))
   
   return(timeback)
+  
+  }, error=function(e){message("Parsing error occurred at webpage ", page)})
   
 }
 
@@ -92,49 +103,55 @@ membership_v2_table <- do.call(rbind, membership_v2) %>%
                           "INSM", acronym), # Fixing this manually
          country = str_remove(country, "\\(insm\\)")) # Clean
 
+saveRDS(membership_v2_table, file = "../../data/archive_members/participants_v2.rds")
+
 
 ##### VERSION 3 #####
 
-files <- list.files("../../data/archive/version3/", full.names = TRUE)
+files <- list.files("../../data/archive_members/version3/", full.names = TRUE) %>%
+  str_remove("../../data/archive_members/version3/pdc") %>%
+  stringi::stri_remove_empty_na()
 
 members_v3 <- function(page) {
   
-  acronym <- read_html(page) %>% 
-    html_nodes("body > div.content.clearfix > h2") %>% # The country name and acronym exists in this node
-    html_text() %>% # Parse to text
-    str_extract("\\([A-Z]+( [A-Z]+)?( [A-Z]+)?\\)") %>% # Fetch the acronym
-    str_remove_all("\\(|\\)")
-  
-  country <- read_html(page) %>% # Same procedure as with version 2
-    html_node("body > div.content.clearfix > h2") %>% # Just change the node
-    html_text() %>%
-    str_remove(" \\([A-Z]+\\)") 
-  
-  date <- str_extract(page, "[0-9]{4}-[0-9]{2}-[0-9]{2}")
-  
-  table <- read_html(page) %>%  # Same procedure as with version 2
-    html_nodes("body > div.content.clearfix > ul > li") %>% # Just change the node
-    html_text() %>%
-    str_squish() %>%
-    str_replace(., " - ", "SEPME") %>%
-    tibble(committee = .) %>%
-    separate(committee, into = c("committee", "title"), sep = "SEPME") %>%
-    mutate(membership = str_extract(title, "P-Member|O-Member|Secretariat"),
-           title = str_squish(str_remove_all(title, "P-Member|O-Member|Secretariat|\\(|\\)")),
-           membership = str_replace(membership, "M", "m")) %>%
-    drop_na(title)
-  
   tryCatch({
-    timeback <- tibble(acronym = acronym,
-                     country = country,
-                     date = date,
-                     committee = str_squish(table$committee),
-                     title = str_squish(table$title),
-                     membership = table$membership,
-                     webid = str_remove_all(page, "../../data/archive/version3/|_[0-9]{4}-[0-9]{2}-[0-9]{2}.htm"))
-  }, error=function(e){message("Problematic page, skipped ", page)})
+    
+    acronym <- read_html(page) %>% 
+      html_nodes("body > div.content.clearfix > h2") %>% # The country name and acronym exists in this node
+      html_text() %>% # Parse to text
+      str_extract("\\([A-Z]+( [A-Z]+)?( [A-Z]+)?\\)") %>% # Fetch the acronym
+      str_remove_all("\\(|\\)")
   
-  try(return(timeback))
+    country <- read_html(page) %>% # Same procedure as with version 2
+      html_node("body > div.content.clearfix > h2") %>% # Just change the node
+      html_text() %>%
+      str_remove(" \\([A-Z]+\\)") 
+  
+    date <- str_extract(page, "[0-9]{4}-[0-9]{2}-[0-9]{2}")
+  
+    table <- read_html(page) %>%  # Same procedure as with version 2
+      html_nodes("body > div.content.clearfix > ul > li") %>% # Just change the node
+      html_text() %>%
+      str_squish() %>%
+      str_replace(., " - ", "SEPME") %>%
+      tibble(committee = .) %>%
+      separate(committee, into = c("committee", "title"), sep = "SEPME") %>%
+      mutate(membership = str_extract(title, "P-Member|O-Member|Secretariat"),
+             title = str_squish(str_remove_all(title, "P-Member|O-Member|Secretariat|\\(|\\)")),
+             membership = str_replace(membership, "M", "m")) %>%
+      drop_na(title)
+  
+    timeback <- tibble(acronym = acronym,
+                       country = country,
+                       date = date,
+                       committee = str_squish(table$committee),
+                       title = str_squish(table$title),
+                       membership = table$membership,
+                       webid = str_remove_all(page, "../../data/archive_members/version3/|_[0-9]{4}-[0-9]{2}-[0-9]{2}.htm"))
+  
+    return(timeback)
+    
+  }, error=function(e){message("Parsing error occurred at webpage ", page)})
   
 }
 
@@ -150,53 +167,124 @@ membership_v3_table <- do.call(rbind, membership_v3) %>%
           membership = c("P-member", "P-member"),
           webid = c("5304435", "5304435"))
 
-saveRDS(membership_v3_table, file = "../../data/archive/membership_v3.rds")
+saveRDS(membership_v3_table, file = "../../data/archive_members/participants_v3.rds")
 
 
 ##### VERSION 4 #####
 
-files <- list.files("../../data/archive/version4/", full.names = TRUE) 
-names <- read_csv("../../data/archive/acronyms_v4.csv") %>% select(acronym, country) 
+## Running the TC part would add extra data but also cause issues in imputation since the imputations are per missing country and not per missing TC
+
+# ### TC ###
+# files <- list.files("../../data/archive_members/version4/tc_site/", full.names = TRUE) 
+# names <- read_csv("../../data/archive_members/acronyms_v4.csv") %>% select(acronym, country) 
+# 
+# members_tc_v4 <- function(page) {
+#   
+#   tryCatch({
+#     
+#     webpage <- read_html(page)
+#     
+#     participating <- webpage %>%
+#       html_node("#datatable-PART_P_OC") %>% # Acronym exists in this node
+#       html_table() %>%
+#       magrittr::set_colnames(c("country", "acronym")) %>%
+#       mutate(membership = "P-member")
+#     
+#     observing <- webpage %>% 
+#       html_node("#datatable-PART_O_OC") %>% # Acronym exists in this node
+#       html_table() %>%
+#       magrittr::set_colnames(c("country", "acronym")) %>%
+#       mutate(membership = "O-member")
+#     
+#     secretariat <- webpage %>%
+#       html_node("#content > section.bg-lightgray.section-sm > div > div > div > p") %>%
+#       html_text() 
+#     
+#     secretariat <- tibble(country = str_squish(str_remove(secretariat, "\\-.*")),
+#                           acronym = str_squish(str_remove(str_remove(str_extract(secretariat, "\\(.*\\)"),"\\("), "\\)"))) %>%
+#       mutate(membership = "Secretariat")
+#     
+#     memberships <- bind_rows(participating, observing, secretariat)
+# 
+#     tc <- webpage %>%
+#       html_node("#content > section.section-navigation > div > div > div > div > nav > div > a") %>% # Fetching the table with TC membership
+#       html_text() # Parse to table
+#     
+#     date <- str_extract(page, "[0-9]{4}-[0-9]{2}-[0-9]{2}") # Regex to extract date from linkname
+#     
+#     timeback <- tibble(acronym = memberships$acronym, # Make a tibble with the final data
+#                        country = memberships$country,
+#                        date = date,
+#                        committee = tc,
+#                        title = NA,
+#                        membership = memberships$membership,
+#                        webid = str_remove_all(page, "../../data/archive_members/version4/tc_folder/|_[0-9]{4}-[0-9]{2}-[0-9]{2}_[A-Z]+.htm"))
+#     
+#     return(timeback)
+#     
+#   }, error=function(e){message("Parsing error occurred at webpage ", page)})
+#   
+#   
+# }
+# 
+# membership_tc_v4 <- lapply(files, members_tc_v4) # Run function on all webpages
+
+
+### MEMBER ###
+files <- list.files("../../data/archive_members/version4/member_site/", full.names = TRUE) 
+names <- read_csv("../../data/archive_members/acronyms_v4.csv") %>% select(acronym, country) 
 # Version 4 does not have country names in webpage, thus need external csv with convertions
 # As acronyms can change, use another one for 2017-2021
 
 members_v4 <- function(page) {
   
-  name <- read_html(page) %>%
-    html_node("div > div > div > nav > div > a") %>% # Acronym exists in this node
-    html_text() %>%
-    tibble(acronym = .) %>% # Make a tibble
-    left_join(names, by = "acronym") # Find country names according to name on standards body
+  tryCatch({
+    
+    name <- read_html(page) %>%
+      html_node("div > div > div > nav > div > a") %>% # Acronym exists in this node
+      html_text() %>%
+      tibble(acronym = .) %>% # Make a tibble
+      left_join(names, by = "acronym") # Find country names according to name on standards body
   
-  table <- read_html(page) %>%
-    html_node("#datatable-participation > tbody") %>% # Fetching the table with TC membership
-    html_table() # Parse to table
-  
-  membership <- str_remove(str_extract(page, "[A-Z]+.htm"), ".htm") # Membership is in this case collected from the linkname
-  
-  date <- str_extract(page, "[0-9]{4}-[0-9]{2}-[0-9]{2}") # Regex to extract date from linkname
-  
-  timeback <- tibble(acronym = name$acronym, # Make a tibble with the final data
+    table <- read_html(page) %>%
+      html_node("#datatable-participation > tbody") %>% # Fetching the table with TC membership
+      html_table() # Parse to table
+
+    membership <- str_remove(str_extract(page, "[A-Z]+.htm"), ".htm") # Membership is in this case collected from the linkname
+
+    date <- str_extract(page, "[0-9]{4}-[0-9]{2}-[0-9]{2}") # Regex to extract date from linkname
+    
+    timeback <- tibble(acronym = name$acronym, # Make a tibble with the final data
                      country = name$country,
                      date = date,
                      committee = str_squish(table$X1),
                      title = str_squish(table$X2),
                      membership = membership,
-                     webid = str_remove_all(page, "../../data/archive/version4/|_[0-9]{4}-[0-9]{2}-[0-9]{2}_[A-Z]+.htm"))
+                     webid = str_remove_all(page, "../../data/archive_members/version4/|_[0-9]{4}-[0-9]{2}-[0-9]{2}_[A-Z]+.htm"))
+    
+    return(timeback)
+    
+  }, error=function(e){message("Parsing error occurred at webpage ", page)})
   
-  return(timeback)
   
 }
 
-membership_v4 <- lapply(files, members_v4) # Run function on all webpages
+membership_v4_tc_table <- lapply(files, members_v4) # Run function on all webpages
 
-membership_v4_table <- do.call(rbind, membership_v4) %>%  # Make into a tibble
+membership_v4_tc_table <- do.call(rbind, membership_v4_tc_table)
+
+# membership_v4_tc_table <- membership_v4_tc_table %>%  
+#   bind_rows(do.call(rbind, membership_tc_v4))
+
+membership_v4_table <- membership_v4_tc_table %>%  # Make into a tibble
+  filter(!membership %in% c("OP", "PP")) %>% # Not including PDC memberships for now
   mutate(membership = ifelse(membership == "OT", "O-member", # Change names of membership types to make compatible with earlier versions
                              ifelse(membership == "PT", "P-member",
                                     ifelse(membership == "S", "Secretariat",
                                            ifelse(membership == "TS", "Twinned secretariat", # New category added
-                                           membership))))) %>%
-  filter(!membership %in% c("PP", "OP")) %>% # Removing participation in committees not TC-related
+                                                  #ifelse(membership == "OP", "O-member PDC",
+                                                         #ifelse(membership == "PP", "P-member PDC",
+                                                                membership))))) %>%
   # Some pages were weirdly downloaded and missed name and acronym, adding them manually
   mutate(country = ifelse(date == "2019-05-14" & webid == "1619", "Canada",
                           ifelse(date == "2019-06-18" & webid == "1835", "Japan",
@@ -209,13 +297,15 @@ membership_v4_table <- do.call(rbind, membership_v4) %>%  # Make into a tibble
                                         ifelse(date == "2019-05-13" & webid == "2036", "INACAL",
                                                acronym)))))
 
-saveRDS(membership_v4_table, file = "../../data/archive/membership_v4.rds")
+saveRDS(membership_v4_table, file = "../../data/archive_members/participants_v4.rds")
 
 
 ##### CURRENT VERSION #####
 
-files <- list.files("../../data/archive/current/", full.names = TRUE) 
-names <- read_csv("../../data/archive/acronyms_v4.csv") %>% select(acronym, country) 
+### CURRENT VERSION ROUND 1 ###
+
+files <- list.files("../../data/archive_members/current-2022-08-31/", full.names = TRUE) 
+names <- read_csv("../../data/archive_members/acronyms_v4.csv") %>% select(acronym, country) 
 
 current <- function(page) { # Webpage hasn't changed since 2017, so procedure follows that of version 4
   
@@ -231,7 +321,7 @@ current <- function(page) { # Webpage hasn't changed since 2017, so procedure fo
   
   membership <- str_remove(str_extract(page, "[A-Z]+.htm"), ".htm") 
   
-  date <- "2022-31-08" 
+  date <- "2022-08-31" 
   
   timeback <- tibble(acronym = name$acronym, 
                      country = name$country,
@@ -239,7 +329,7 @@ current <- function(page) { # Webpage hasn't changed since 2017, so procedure fo
                      committee = str_squish(table$X1),
                      title = str_squish(table$X2),
                      membership = membership,
-                     webid = str_remove_all(page, "../../data/archive/current/|_[0-9]{4}-[0-9]{2}-[0-9]{2}_[A-Z]+.htm"))
+                     webid = str_remove_all(page, "../../data/archive_members/current/|_[0-9]{4}-[0-9]{2}-[0-9]{2}_[A-Z]+.htm"))
   
   return(timeback)
   
@@ -247,14 +337,63 @@ current <- function(page) { # Webpage hasn't changed since 2017, so procedure fo
 
 membership_current <- lapply(files, current) 
 
-membership_current_table <- do.call(rbind, membership_current) %>%  
+membership_current_table1 <- do.call(rbind, membership_current) %>%  
+  filter(!membership %in% c("OP", "PP")) %>% # Not including PDC memberships for now
   mutate(membership = ifelse(membership == "OT", "O-member", 
                              ifelse(membership == "PT", "P-member",
                                     ifelse(membership == "S", "Secretariat",
                                            ifelse(membership == "TS", "Twinned secretariat", 
-                                                  membership))))) %>%
-  filter(!membership %in% c("PP", "OP"))
+                                                  #ifelse(membership == "OP", "O-member PDC",
+                                                         #ifelse(membership == "PP", "P-member PDC",
+                                                                membership)))))
 
-saveRDS(membership_current_table, file = "../../data/archive/membership_current.rds")
+saveRDS(membership_current_table1, file = "../../data/archive_members/participants_current_2022.rds")
 
+
+### CURRENT VERSION ROUND 2 ###
+
+files <- list.files("../../data/archive_members/current-2023-07-26/", full.names = TRUE) 
+names <- read_csv("../../data/archive_members/acronyms_v4.csv") %>% select(acronym, country) 
+
+current <- function(page) { # Webpage hasn't changed since 2017, so procedure follows that of version 4
+  
+  name <- read_html(page) %>%
+    html_node("div > div > div > nav > div > a") %>% 
+    html_text() %>%
+    tibble(acronym = .) %>% 
+    left_join(names, by = "acronym") 
+  
+  table <- read_html(page) %>%
+    html_node("#datatable-participation > tbody") %>% 
+    html_table() 
+  
+  membership <- str_remove(str_extract(page, "[A-Z]+.htm"), ".htm") 
+  
+  date <- "2023-07-26" 
+  
+  timeback <- tibble(acronym = name$acronym, 
+                     country = name$country,
+                     date = date,
+                     committee = str_squish(table$X1),
+                     title = str_squish(table$X2),
+                     membership = membership,
+                     webid = str_remove_all(page, "../../data/archive_members/current/|_[0-9]{4}-[0-9]{2}-[0-9]{2}_[A-Z]+.htm"))
+  
+  return(timeback)
+  
+}
+
+membership_current <- lapply(files, current) 
+
+membership_current_table2 <- do.call(rbind, membership_current) %>% 
+  filter(!membership %in% c("OP", "PP")) %>% # Not including PDC memberships for now
+  mutate(membership = ifelse(membership == "OT", "O-member", 
+                             ifelse(membership == "PT", "P-member",
+                                    ifelse(membership == "S", "Secretariat",
+                                           ifelse(membership == "TS", "Twinned secretariat", 
+                                                  #ifelse(membership == "OP", "O-member PDC",
+                                                         #ifelse(membership == "PP", "P-member PDC",
+                                                                membership)))))
+
+saveRDS(membership_current_table2, file = "../../data/archive_members/participants_current_2023.rds")
 
