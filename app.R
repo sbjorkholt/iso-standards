@@ -3,8 +3,14 @@ library(shiny)
 library(shinythemes)
 library(shinydashboard)
 library(dbplyr)
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(DBI)
+library(RSQLite)
+library(DT)
 
-con <- dbConnect(RSQLite::SQLite(), "./data/final_data/iso_standards.sqlite")
+con <- dbConnect(RSQLite::SQLite(), "./data/iso_standards.sqlite")
 
 ui <- dashboardPage(
 
@@ -19,7 +25,13 @@ ui <- dashboardPage(
                 
                 br(),
                 
-                downloadButton('download',"Download the dataset", style = "width:90%;", style = "margin-left: 10px")
+                downloadButton('download',"Download the dataset", style = "width:90%;", style = "margin-left: 10px"),
+                
+                br(),
+                br(),
+                
+                p(HTML("The database can also be downloaded <a href='https://www.dropbox.com/s/0b2dpsjne85vsoz/iso_standards.sqlite?dl=1'>here</a>."),
+                  style = "margin-left: 10px")
 
     ),
                 

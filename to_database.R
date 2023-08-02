@@ -12,17 +12,17 @@ library(RSQLite)
 #### Load data ####
 
 ## Participants
-participants <- readRDS("./data/final_data/participants.rds") %>%
+participants <- readRDS("./datasets/final_data/participants.rds") %>%
   unnest() %>%
   ungroup()
 
 ## Liaison
-liaison <- readRDS("./data/final_data/liaison.rds") %>%
+liaison <- readRDS("./datasets/final_data/liaison.rds") %>%
   unnest() %>%
   ungroup()
 
 ## Standards
-standards <- readRDS("./data/final_data/standards_df.rds")
+standards <- readRDS("./datasets/final_data/standards_df.rds")
 
 ICS_df <- standards %>%
   select(stdno, rowid, ICS) %>%
@@ -48,35 +48,35 @@ standards <- standards %>%
   mutate(year = str_extract(date, "[0-9]{4}"))
 
 ## Sectors 
-sectors <- readRDS("./data/final_data/sectormerge_standards.rds") %>%
+sectors <- readRDS("./datasets/final_data/sectormerge_standards.rds") %>%
   unnest() %>%
   ungroup()
 
 ## Certifications
-country_certifications <- readRDS("./data/final_data/country_certifications.rds") %>%
+country_certifications <- readRDS("./datasets/final_data/country_certifications.rds") %>%
   unnest() %>%
   ungroup()
-country_per_industry_certifications <- readRDS("./data/final_data/country_per_industry_certifications_2009_2020.rds") %>%
+country_per_industry_certifications <- readRDS("./datasets/final_data/country_per_industry_certifications_2009_2020.rds") %>%
   unnest() %>%
   ungroup()
-industry_certifications <- readRDS("./data/final_data/industry_certifications.rds") %>%
+industry_certifications <- readRDS("./datasets/final_data/industry_certifications.rds") %>%
   unnest() %>%
   ungroup()
 
 ## Historical membership
-historical_memberships <- readRDS("./data/final_data/memberships.rds") %>%
+historical_memberships <- readRDS("./datasets/final_data/memberships.rds") %>%
   unnest() %>%
   ungroup()
 
 ## Historical TC creation
-historical_tc_creation <- readRDS("./data/final_data/tc_creation.rds") %>%
+historical_tc_creation <- readRDS("./datasets/final_data/tc_creation.rds") %>%
   unnest() %>%
   ungroup() %>%
   rename(year = creation_date)
 
 #### Database ####
 
-con <- dbConnect(RSQLite::SQLite(), "./data/final_data/iso_standards.sqlite")
+con <- dbConnect(RSQLite::SQLite(), "./data/iso_standards.sqlite")
 
 dbWriteTable(con, "participants", participants, overwrite = TRUE)
 dbWriteTable(con, "liaison", liaison, overwrite = TRUE)
