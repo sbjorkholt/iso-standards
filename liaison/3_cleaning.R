@@ -377,5 +377,5 @@ category_justification <- organizations_tagged_finished %>%
 liaison_wayback <- liaison_wayback_imputed %>% 
   left_join(category_justification, by = join_by(country, acronym), relationship = "many-to-many")
 
-saveRDS(liaison_wayback, file = "../../data/archive_liaison/liaison_wayback.rds")
+saveRDS(liaison_wayback, file = "../../data/final_data/liaison.rds")
 
