@@ -5,6 +5,7 @@
 
 library(dplyr)
 library(tidyr)
+library(stringr)
 library(DBI)
 library(RSQLite)
 
@@ -42,7 +43,9 @@ standards <- standards %>%
   select(-c(ICS, SDGs, life_cycle)) %>%
   full_join(ICS_df, by = join_by(stdno, rowid), relationship = "many-to-many") %>%
   full_join(SDG_df, by = join_by(stdno, rowid), relationship = "many-to-many") %>%
-  full_join(life_cycle_df, by = join_by(stdno, rowid), relationship = "many-to-many")
+  full_join(life_cycle_df, by = join_by(stdno, rowid), relationship = "many-to-many") %>%
+  select(-stdno1) %>%
+  mutate(year = str_extract(date, "[0-9]{4}"))
 
 ## Sectors 
 sectors <- readRDS("./data/final_data/sectormerge_standards.rds") %>%
@@ -68,21 +71,23 @@ historical_memberships <- readRDS("./data/final_data/memberships.rds") %>%
 ## Historical TC creation
 historical_tc_creation <- readRDS("./data/final_data/tc_creation.rds") %>%
   unnest() %>%
-  ungroup()
+  ungroup() %>%
+  rename(year = creation_date)
 
 #### Database ####
 
 con <- dbConnect(RSQLite::SQLite(), "./data/final_data/iso_standards.sqlite")
 
-dbWriteTable(con, "participants", participants)
-dbWriteTable(con, "liaison", liaison)
-dbWriteTable(con, "standards", standards)
-dbWriteTable(con, "sectors", sectors)
-dbWriteTable(con, "country_certifications", country_certifications)
-dbWriteTable(con, "country_per_industry_certifications", country_per_industry_certifications)
-dbWriteTable(con, "industry_certifications", industry_certifications)
-dbWriteTable(con, "historical_memberships", historical_memberships)
-dbWriteTable(con, "historical_tc_creation", historical_tc_creation)
+dbWriteTable(con, "participants", participants, overwrite = TRUE)
+dbWriteTable(con, "liaison", liaison, overwrite = TRUE)
+dbWriteTable(con, "standards", standards, overwrite = TRUE)
+dbWriteTable(con, "sectors", sectors, overwrite = TRUE)
+dbWriteTable(con, "country_certifications", country_certifications, overwrite = TRUE)
+dbWriteTable(con, "country_per_industry_certifications", country_per_industry_certifications, overwrite = TRUE)
+dbWriteTable(con, "industry_certifications", industry_certifications, overwrite = TRUE)
+dbWriteTable(con, "historical_memberships", historical_memberships, overwrite = TRUE)
+dbWriteTable(con, "historical_tc_creation", historical_tc_creation, overwrite = TRUE)
 
 dbListTables(con)
 
+dbDisconnect(con)
