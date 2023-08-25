@@ -19,7 +19,7 @@ ids <- str_c(member, "_", dates) # Add together to an id
 
 walk2(urls, ids, function(link, id) { # Download the files to a local folder
   
-  destfile <- paste0("../../data/archive_members/version1/", id, ".htm")
+  destfile <- paste0("../raw_data/archive_members/version1/", id, ".htm")
   
   if(!file.exists(destfile)){
     
@@ -46,7 +46,7 @@ ids <- str_c(member, "_", dates)
 
 walk2(urls, ids, function(link, id) {
   
-  destfile <- paste0("../../data/archive_members/version2/", id, ".htm")
+  destfile <- paste0("../raw_data/archive_members/version2/", id, ".htm")
   
   if(!file.exists(destfile)){
     
@@ -70,7 +70,7 @@ walk2(urls, ids, function(link, id) {
 # 
 # walk2(urls, ids, function(link, id) {
 #   
-#   destfile <- paste0("../../data/archive_members/version2/", id, "_pdc", ".htm")
+#   destfile <- paste0("../raw_data/archive_members/version2/", id, "_pdc", ".htm")
 #   
 #   if(!file.exists(destfile)){
 #     
@@ -98,7 +98,7 @@ ids <- str_c(member, "_", dates)
 
 walk2(urls, ids, function(link, id) {
   
-  destfile <- paste0("../../data/archive_members/version3/", id, ".htm")
+  destfile <- paste0("../raw_data/archive_members/version3/", id, ".htm")
   
   if(!file.exists(destfile)){
     
@@ -122,7 +122,7 @@ walk2(urls, ids, function(link, id) {
 # 
 # walk2(urls, ids, function(link, id) {
 #   
-#   destfile <- paste0("../../data/archive_members/version3/", id, "_pdc", ".htm")
+#   destfile <- paste0("../raw_data/archive_members/version3/", id, "_pdc", ".htm")
 #   
 #   if(!file.exists(destfile)){
 #     
@@ -149,7 +149,7 @@ ids <- str_c(tc, "_", dates)
 
 walk2(urls, ids, function(link, id) {
   
-  destfile <- paste0("../../data/archive_members/version4/tc_site/", id, ".htm")
+  destfile <- paste0("../raw_data/archive_members/version4/tc_site/", id, ".htm")
   
   if(!file.exists(destfile)){
     
@@ -174,7 +174,7 @@ ids <- str_c(member, "_", dates, "_", membership)
 
 walk2(urls, ids, function(link, id) {
   
-  destfile <- paste0("../../data/archive_members/version4/member_site/", id, ".htm")
+  destfile <- paste0("../raw_data/archive_members/version4/member_site/", id, ".htm")
   
   if(!file.exists(destfile)){
     
@@ -226,7 +226,7 @@ walk2(urls, ids, function(link, id) {
 #                              year = str_remove(str_extract(extra_links, "-[0-9]{4}"), "-")) %>%
 #   na.omit()
 # 
-# saveRDS(extra_links, file = "../../data/archive_members/extralinks_version4.rds")
+# saveRDS(extra_links, file = "../raw_data/archive_members/extralinks_version4.rds")
 
 
 ##### CURRENT VERSION #####
@@ -261,7 +261,7 @@ walk2(pages$urls, pages$ids, function(link, id) {
   
   tryCatch({
     
-    download.file(link, destfile = paste0("../../data/archive_members/current-2023-07-26/", id, ".htm"), quiet = TRUE)
+    download.file(link, destfile = paste0("../raw_data/archive_members/current-2023-07-26/", id, ".htm"), quiet = TRUE)
     Sys.sleep(5)
     
   }, error=function(e){message("Problematic page, skipped ", id)})

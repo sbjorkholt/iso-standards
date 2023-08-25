@@ -1,4 +1,8 @@
 
+################################################################################################################################
+#################################                            SECTORS                              ##############################
+################################################################################################################################
+
 ##### MAIN COMMITTEES ####
 
 library(rvest)
@@ -165,7 +169,7 @@ create_prompt <- function(old_tcs){
                                "14. Freight, packaging and distribution ",
                                "15. Business management and innovation ", 
                                "16. Security, safety and risk ")
-                              
+                             
                            )
                          )
   )
@@ -268,52 +272,14 @@ sectormerge <- sectormerge %>%
                              .default = sector
   ))
 
+write_csv2(sectormerge_standards, file = "../datasets/sectormerge.csv")
 
-##### MERGING ####
+sectormerge <- read_csv("../datasets/sectormerge.csv")
 
-TC_creation <- bind_rows(TC_creation, TC_sub_creation) %>% 
-  left_join(sectormerge, by = join_by(committee)) %>%
-  bind_rows(old_tc_df) %>%
-  rename(year = creation_date) %>%
-  mutate(sector = ifelse(title == "Air quality", "Sustainability and environment",
-                         ifelse(title == "Glass in building", "Building and construction",
-                                ifelse(title == "Karst", "Non-metallic materials",
-                                       ifelse(title == "Machinery intended for use with foodstuffs", "	Mechanical engineering",
-                                              ifelse(title == "Natural stones", "Non-metallic materials",
-                                                     ifelse(title == "Engineered stones", "Ores and metals",
-                                                            ifelse(title == "Security equipment for financial institutions and commercial organizations", "Security, safety and risk",
-                                                                   ifelse(title == "Laboratory design", "Health, medicine and laboratory equipment",
-                                                                          ifelse(title == "Menstrual products", "Health, medicine and laboratory equipment",
-                                                                                 ifelse(title == "Small hydropower plants", "Energy",
-                                                                                        ifelse(title == "Natural gas fuelling stations", "Energy",
-                                                                                               ifelse(title == "Heat supply network", "Energy",
-                                                                                                      sector))))))))))))) 
+sectormerge <- sectormerge %>%
+  distinct(committee, .keep_all = TRUE)
 
-TC_creation <- TC_creation %>%
-  mutate(sector = case_match(committee,
-                             "ISO/PC 250" ~ "Sustainability and environment", # Sustainability in event management 
-                             "ISO/PC 305" ~ "Sustainability and environment",
-                             "ISO/PC 316" ~ "Services",
-                             "ISO/PC 317" ~ "Services",
-                             "ISO/PC 329" ~ "Security, safety and risk",
-                             "ISO/TC 342" ~ "Services",
-                             "ISO/PC 343" ~ "Sustainability and environment",
-                             "ISO/IEC JTC 1/SC 43" ~ "Information technology, graphics and photography",
-                             "ISO/PC 317" ~ "Services",
-                             "CIE" ~ "Other",
-                             "ISO/TC 17/SC 21" ~ "Ores and metals",
-                             "ISO/TC 34/SC 20" ~ "Food and agriculture",
-                             "ISO/CASCO" ~ "Other",
-                             "IIW" ~ "Other",
-                             "ISO/TC 59/SC 19" ~ "Building and construction",
-                             "ISO/TC 67/SC 10" ~ "Mechanical engineering",
-                             "ISO/TC 114/SC 10" ~ "Special technologies",
-                             "ISO/TC 120/SC 3" ~ "Non-metallic materials",
-                             "IULTCS" ~ "Other",
-                             "ISO/TC 197/SC 1" ~ "Energy",
-                             "ISO/PC 335" ~ "Business management and innovation",
-                             "ISO/PC 337" ~ "Business management and innovation",
-                             "ISO/COPOLCO" ~ "Other",
-                             .default = sector))
+saveRDS(sectormerge, file = "../datasets/sectors.rds")
 
-saveRDS(TC_creation, file = "../datasets/tc_creation_all.rds")
+
+                       

@@ -18,7 +18,6 @@
 ## Survey can be found at ISO's archive: https://isotc.iso.org/livelink/livelink?func=ll&objId=18808772&objAction=browse&sort=name&viewType=1
 
 library(tidyverse)
-setwd("C:/Users/solvebjo/OneDrive - Universitetet i Oslo/PhD/Paper 2 - Standards/after_feedback/data/ISO survey")
 
 ## SCRIPT 1:
 

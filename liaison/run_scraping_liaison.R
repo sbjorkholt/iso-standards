@@ -7,6 +7,7 @@ library(tidyverse)
 library(wayback)
 library(rvest)
 library(httr)
+library(simputation)
 
 extract_acronyms <- function(input_string) {
   pattern <- "\\b(\\-)?.*(?:\\w+(?:, )?)+\\b(\\-)?"

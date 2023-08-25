@@ -12,7 +12,7 @@ country_iso9001 <- list()
 
 for (i in 4:8) {
   
-  ll <- suppressMessages(readxl::read_excel("./ISO_9001_data_per_country_and_sector_1993_to_2017.xlsm", sheet = i, skip = 1)) 
+  ll <- suppressMessages(readxl::read_excel("../raw_data//ISO survey/ISO_9001_data_per_country_and_sector_1993_to_2017.xlsm", sheet = i, skip = 1)) 
   # Read in the sheets containing info on country certifications (divided by continent)
   
   ll <- ll |> 
@@ -38,7 +38,7 @@ country_iso9001 <- country_iso9001 |> filter(!country %in% c("ISO 9001 - North A
 
 ###### INDUSTRY ######
 
-industry_iso9001 <- suppressMessages(readxl::read_excel("./ISO_9001_data_per_country_and_sector_1993_to_2017.xlsm", sheet = 9, skip = 4)) |> # Read in sheet number nine
+industry_iso9001 <- suppressMessages(readxl::read_excel("../raw_data/ISO survey/ISO_9001_data_per_country_and_sector_1993_to_2017.xlsm", sheet = 9, skip = 4)) |> # Read in sheet number nine
   rename(industry = `ISO 9001 BY INDUSTRIAL SECTOR`) |>  # Rename the column on industry
   select(-`EA*                   Code Nos.`) # Remove the first messy column
 
@@ -65,7 +65,7 @@ country_iso14001 <- list()
 
 for (i in 4:8) {
   
-  ll <- suppressMessages(readxl::read_excel("./ISO_14001_data_per_country_and_sector_1999_to_2017.xlsm", sheet = i, skip = 1)) 
+  ll <- suppressMessages(readxl::read_excel("../raw_data/ISO survey/ISO_14001_data_per_country_and_sector_1999_to_2017.xlsm", sheet = i, skip = 1)) 
 
   ll <- ll |> 
     rename(country = Year) |> 
@@ -90,7 +90,7 @@ country_iso14001 <- country_iso14001 |> filter(!country %in% c("ISO 14001 - Nort
 
 ###### INDUSTRY ######
 
-industry_iso14001 <- suppressMessages(readxl::read_excel("./ISO_14001_data_per_country_and_sector_1999_to_2017.xlsm", sheet = 9, skip = 2)) |> 
+industry_iso14001 <- suppressMessages(readxl::read_excel("../raw_data/ISO survey/ISO_14001_data_per_country_and_sector_1999_to_2017.xlsm", sheet = 9, skip = 2)) |> 
   rename(industry = `ISO 14001 BY INDUSTRIAL SECTOR`) |> 
   select(-`EA*                   Code Nos.`)
 
@@ -116,7 +116,7 @@ country_iso27001 <- list()
 
 for (i in 5:11) {
   
-  ll <- suppressMessages(readxl::read_excel("./ISO_IEC_27001_data_per_country_and_sector_2006_to_2017.xlsm", sheet = i, skip = 1)) 
+  ll <- suppressMessages(readxl::read_excel("../raw_data/ISO survey/ISO_IEC_27001_data_per_country_and_sector_2006_to_2017.xlsm", sheet = i, skip = 1)) 
 
   ll <- ll |> 
     rename(country = Year) |> 
@@ -135,7 +135,7 @@ country_iso27001 <- do.call(rbind, compact(country_iso27001))
 
 ###### INDUSTRY ######
 
-industry_iso27001 <- suppressMessages(readxl::read_excel("./ISO_IEC_27001_data_per_country_and_sector_2006_to_2017.xlsm", sheet = 12, skip = 2)) |>
+industry_iso27001 <- suppressMessages(readxl::read_excel("../raw_data/ISO survey/ISO_IEC_27001_data_per_country_and_sector_2006_to_2017.xlsm", sheet = 12, skip = 2)) |>
   rename(industry = `ISO/IEC 27001 BY INDUSTRIAL SECTOR`) |>  
   select(-`EA*                   Code Nos.`)
 
@@ -159,7 +159,7 @@ country_iso50001 <- list()
 
 for (i in 5:11) {
   
-  ll <- suppressMessages(readxl::read_excel("./ISO_50001_data_per_country_and_sector_2011_to_2017.xlsx", sheet = i, skip = 1)) 
+  ll <- suppressMessages(readxl::read_excel("../raw_data/ISO survey/ISO_50001_data_per_country_and_sector_2011_to_2017.xlsx", sheet = i, skip = 1)) 
 
   ll <- ll |> 
     rename(country = Year) |> 
@@ -178,7 +178,7 @@ country_iso50001 <- do.call(rbind, compact(country_iso50001))
 
 ###### INDUSTRY ######
 
-industry_iso50001 <- suppressMessages(readxl::read_excel("./ISO_50001_data_per_country_and_sector_2011_to_2017.xlsx", sheet = 12, skip = 2)) |> 
+industry_iso50001 <- suppressMessages(readxl::read_excel("../raw_data/ISO survey/ISO_50001_data_per_country_and_sector_2011_to_2017.xlsx", sheet = 12, skip = 2)) |> 
   rename(industry = `ISO 50001 BY INDUSTRIAL SECTOR`) |>  
   select(-`EA*                   Code Nos.`) 
 
@@ -201,7 +201,7 @@ country_iso22000 <- list()
 
 for (i in 5:11) {
   
-  ll <- suppressMessages(readxl::read_excel("./ISO_22000_data_per_country_2007_to_2017.xlsx", sheet = i, skip = 1)) 
+  ll <- suppressMessages(readxl::read_excel("../raw_data/ISO survey/ISO_22000_data_per_country_2007_to_2017.xlsx", sheet = i, skip = 1)) 
 
   ll <- ll |> 
     rename(country = Year) |>
@@ -228,7 +228,7 @@ country_iso13485 <- list()
 
 for (i in 5:11) {
   
-  ll <- suppressMessages(readxl::read_excel("./ISO_13485_data_per_country_2004_to_2017.xlsm", sheet = i, skip = 1)) 
+  ll <- suppressMessages(readxl::read_excel("../raw_data/ISO survey/ISO_13485_data_per_country_2004_to_2017.xlsm", sheet = i, skip = 1)) 
 
   ll <- ll |> 
     rename(country = Year) |> 
@@ -255,7 +255,7 @@ country_iso22301 <- list()
 
 for (i in 5:11) {
   
-  ll <- suppressMessages(readxl::read_excel("./ISO_22301_data_per_country_and_sector_2014_to_2017.xlsx", sheet = i, skip = 1)) 
+  ll <- suppressMessages(readxl::read_excel("../raw_data/ISO survey/ISO_22301_data_per_country_and_sector_2014_to_2017.xlsx", sheet = i, skip = 1)) 
 
   ll <- ll |> 
     rename(country = Year) |> 
@@ -273,7 +273,7 @@ country_iso22301 <- do.call(rbind, compact(country_iso22301))
 
 ###### INDUSTRY ######
 
-industry_iso22301 <- suppressMessages(readxl::read_excel("./ISO_22301_data_per_country_and_sector_2014_to_2017.xlsx", sheet = 12, skip = 2)) |> 
+industry_iso22301 <- suppressMessages(readxl::read_excel("../raw_data/ISO survey/ISO_22301_data_per_country_and_sector_2014_to_2017.xlsx", sheet = 12, skip = 2)) |> 
   rename(industry = `ISO 22301 BY INDUSTRIAL SECTOR`) |>  
   select(-`EA*                   Code Nos.`) 
 
@@ -296,7 +296,7 @@ country_iso20000_1 <- list()
 
 for (i in 5:11) {
   
-  ll <- suppressMessages(readxl::read_excel("./ISO_20000-1_data_per_country_and_sector_2015_to_2017.xlsx", sheet = i, skip = 1)) 
+  ll <- suppressMessages(readxl::read_excel("../raw_data/ISO survey/ISO_20000-1_data_per_country_and_sector_2015_to_2017.xlsx", sheet = i, skip = 1)) 
   
   ll <- ll |> 
     rename(country = Year) |> 
@@ -314,7 +314,7 @@ country_iso20000_1 <- do.call(rbind, compact(country_iso20000_1))
 
 ###### INDUSTRY ######
 
-industry_iso20000_1 <- suppressMessages(readxl::read_excel("./ISO_20000-1_data_per_country_and_sector_2015_to_2017.xlsx", sheet = 12, skip = 2)) |> 
+industry_iso20000_1 <- suppressMessages(readxl::read_excel("../raw_data/ISO survey/ISO_20000-1_data_per_country_and_sector_2015_to_2017.xlsx", sheet = 12, skip = 2)) |> 
   rename(industry = `ISO 20000-1 BY INDUSTRIAL SECTOR`) |>  
   select(-`EA*                   Code Nos.`) 
 
@@ -337,7 +337,7 @@ country_iso28000 <- list()
 
 for (i in 5:11) {
   
-  ll <- suppressMessages(readxl::read_excel("./ISO_28000_data_per_country_and_sector_2016_to_2017.xlsx", sheet = i, skip = 1)) 
+  ll <- suppressMessages(readxl::read_excel("../raw_data/ISO survey/ISO_28000_data_per_country_and_sector_2016_to_2017.xlsx", sheet = i, skip = 1)) 
   
   ll <- ll |> 
     rename(country = Year) |> 
@@ -355,7 +355,7 @@ country_iso28000 <- do.call(rbind, compact(country_iso28000))
 
 ###### INDUSTRY ######
 
-industry_iso28000 <- suppressMessages(readxl::read_excel("./ISO_28000_data_per_country_and_sector_2016_to_2017.xlsx", sheet = 12, skip = 2)) |> 
+industry_iso28000 <- suppressMessages(readxl::read_excel("../raw_data/ISO survey/ISO_28000_data_per_country_and_sector_2016_to_2017.xlsx", sheet = 12, skip = 2)) |> 
   rename(industry = `ISO 28000 BY INDUSTRIAL SECTOR`) |>  
   select(-`EA*                   Code Nos.`) 
 
@@ -378,7 +378,7 @@ country_iso39001 <- list()
 
 for (i in 5:11) {
   
-  ll <- suppressMessages(readxl::read_excel("./ISO_39001_data_per_country_and_sector_2016_to_2017.xlsx", sheet = i, skip = 1)) 
+  ll <- suppressMessages(readxl::read_excel("../raw_data/ISO survey/ISO_39001_data_per_country_and_sector_2016_to_2017.xlsx", sheet = i, skip = 1)) 
   
   ll <- ll |> 
     rename(country = Year) |> 
@@ -396,7 +396,7 @@ country_iso39001 <- do.call(rbind, compact(country_iso39001))
 
 ###### INDUSTRY ######
 
-industry_iso39001 <- suppressMessages(readxl::read_excel("./ISO_39001_data_per_country_and_sector_2016_to_2017.xlsx", sheet = 12, skip = 2)) |> 
+industry_iso39001 <- suppressMessages(readxl::read_excel("../raw_data/ISO survey/ISO_39001_data_per_country_and_sector_2016_to_2017.xlsx", sheet = 12, skip = 2)) |> 
   rename(industry = `ISO 39001 BY INDUSTRIAL SECTOR`) |>  
   select(-`EA*                   Code Nos.`) 
 
@@ -419,8 +419,8 @@ industry_2018 <- list()
 
 for (i in 2:13) {
   
-  ll <- suppressMessages(readxl::read_excel("./ISO_Survey_2018_results_Number_of_certificates_and_sites_per_country_and_the_number_of_sector_overall.xlsx", sheet = i, skip = 1))
-  iso <- readxl::excel_sheets("./ISO_Survey_2018_results_Number_of_certificates_and_sites_per_country_and_the_number_of_sector_overall.xlsx")[i] %>%
+  ll <- suppressMessages(readxl::read_excel("../raw_data/ISO survey/ISO_Survey_2018_results_Number_of_certificates_and_sites_per_country_and_the_number_of_sector_overall.xlsx", sheet = i, skip = 1))
+  iso <- readxl::excel_sheets("../raw_data/ISO survey/ISO_Survey_2018_results_Number_of_certificates_and_sites_per_country_and_the_number_of_sector_overall.xlsx")[i] %>%
     str_to_lower() %>%
     str_replace_all(., " ", "_")
   
@@ -457,8 +457,8 @@ industry_2019 <- list()
 
 for (i in 2:13) {
   
-  ll <- suppressMessages(readxl::read_excel("./ISO_Survey_2019_results_Number_of_certificates_and_sites_per_country_and_the_number_of_sector_overall.xlsx", sheet = 6, skip = 1))
-  iso <- readxl::excel_sheets("./ISO_Survey_2019_results_Number_of_certificates_and_sites_per_country_and_the_number_of_sector_overall.xlsx")[6] %>%
+  ll <- suppressMessages(readxl::read_excel("../raw_data/ISO survey/ISO_Survey_2019_results_Number_of_certificates_and_sites_per_country_and_the_number_of_sector_overall.xlsx", sheet = i, skip = 1))
+  iso <- readxl::excel_sheets("../raw_data/ISO survey/ISO_Survey_2019_results_Number_of_certificates_and_sites_per_country_and_the_number_of_sector_overall.xlsx")[i] %>%
     str_to_lower() %>%
     str_replace_all(., " ", "_")
   
@@ -488,7 +488,6 @@ country_2019 <- do.call(rbind, compact(country_2019))
 industry_2019 <- do.call(rbind, compact(industry_2019)) |> 
   drop_na(industry)
 
-table(country_2019$iso)
 
 ## 2020
 
@@ -497,8 +496,8 @@ industry_2020 <- list()
 
 for (i in 2:13) {
   
-  ll <- suppressMessages(readxl::read_excel("./ISO_Survey_2020_results_Number_of_certificates_and_sites_per_country_and_the_number_of_sector_overall.xlsx", sheet = i, skip = 1))
-  iso <- readxl::excel_sheets("./ISO_Survey_2020_results_Number_of_certificates_and_sites_per_country_and_the_number_of_sector_overall.xlsx")[i] %>%
+  ll <- suppressMessages(readxl::read_excel("../raw_data/ISO survey/ISO_Survey_2020_results_Number_of_certificates_and_sites_per_country_and_the_number_of_sector_overall.xlsx", sheet = i, skip = 1))
+  iso <- readxl::excel_sheets("../raw_data/ISO survey/ISO_Survey_2020_results_Number_of_certificates_and_sites_per_country_and_the_number_of_sector_overall.xlsx")[i] %>%
     str_to_lower() %>%
     str_replace_all(., " ", "_")
   
@@ -545,6 +544,16 @@ country_certifications <- bind_rows(country_iso9001,
                                     country_2020)
 
 
+country_certifications <- country_certifications %>% 
+  mutate(iso = ifelse(iso == "iso_20000_1", "iso_20000-1",
+                      ifelse(iso == "iso_iec_20000-1", "iso_20000-1",
+                             ifelse(iso == "iso_iec_27001", "iso_27001",
+                                    ifelse(iso == "iso__20000_1", "iso_20000-1",
+                                           ifelse(iso == "iso__39001", "iso_39001",
+                                                  ifelse(iso == "iso__28000", "iso_28000", iso)))))))
+
+table(country_certifications$iso, country_certifications$year)
+
 industry_certifications <- bind_rows(industry_iso9001, 
                                      industry_iso14001, 
                                      industry_iso27001, 
@@ -557,6 +566,14 @@ industry_certifications <- bind_rows(industry_iso9001,
                                      industry_2019, 
                                      industry_2020)
 
+industry_certifications <- industry_certifications %>% 
+  mutate(iso = ifelse(iso == "iso_20000_1", "iso_20000-1",
+                      ifelse(iso == "iso__20000_1", "iso_20000-1",
+                      ifelse(iso == "iso_iec_20000-1", "iso_20000-1",
+                             ifelse(iso == "iso_iec_27001", "iso_27001",
+                                    ifelse(iso == "iso__28000", "iso_28000", iso))))))
 
-# saveRDS(country_certifications, file = "C:/Users/solvebjo/OneDrive - Universitetet i Oslo/PhD/Paper 2 - Standards/after_feedback/data/final_data/country_certifications.rds")
-# saveRDS(industry_certifications, file = "C:/Users/solvebjo/OneDrive - Universitetet i Oslo/PhD/Paper 2 - Standards/after_feedback/data/final_data/industry_certifications.rds")
+table(industry_certifications$iso, industry_certifications$year)
+
+saveRDS(country_certifications, file = "../datasets/country_certifications.rds")
+saveRDS(industry_certifications, file = "../datasets//industry_certifications.rds")

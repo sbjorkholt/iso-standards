@@ -6,8 +6,8 @@
 
 ##### VERSION 1 #####
 
-files <- list.files("../../data/archive_liaison/version1/", full.names = TRUE) # List up the downloaded webpages
-names <- read_csv("../../data/archive_liaison/acronyms_v1.csv") %>% janitor::clean_names() %>% select(acronym, name) %>% # Read in csv with list of acronym and name of organization
+files <- list.files("../raw_data/archive_liaison/version1/", full.names = TRUE) # List up the downloaded webpages
+names <- read_csv("../raw_data/archive_liaison/acronyms_v1.csv") %>% janitor::clean_names() %>% select(acronym, name) %>% # Read in csv with list of acronym and name of organization
   drop_na(name) %>%
   unique()
 
@@ -17,7 +17,7 @@ liaison_v1 <- function(page) {
     
     webpage <- read_html(page)
     
-  name <- str_remove_all(page, "../../data/archive_liaison/version1/|_[0-9]+-[0-9]+-[0-9]+.htm") %>% # Remove date from linkname, stripping down to acronym
+  name <- str_remove_all(page, "../raw_data/archive_liaison/version1/|_[0-9]+-[0-9]+-[0-9]+.htm") %>% # Remove date from linkname, stripping down to acronym
     tibble(acronym = .) %>% # Make a tibble
     left_join(names, by = "acronym") # Left join with csv-file with country names
   
@@ -45,7 +45,7 @@ liaison_v1 <- function(page) {
                      address = table$address,
                      liaison = table$liaison)
   
-  message("Finished up ", str_remove(page, "../../data/archive_liaison/version1/"))
+  message("Finished up ", str_remove(page, "../raw_data/archive_liaison/version1/"))
   
     return(table)
   
@@ -158,14 +158,14 @@ liaison_v1_table <- liaison_v1_table %>%
     TRUE ~ organization  # For cases where the acronym doesn't match any known values
   ))
 
-saveRDS(liaison_v1_table, file = "../../data/archive_liaison/liaison_v1_table.rds")
+saveRDS(liaison_v1_table, file = "../raw_data/archive_liaison/liaison_v1_table.rds")
 
 
 ##### VERSION 2 #####
 
 ### TC ###
 
-files <- list.files("../../data/archive_liaison/version2/tc_site/", full.names = TRUE)
+files <- list.files("../raw_data/archive_liaison/version2/tc_site/", full.names = TRUE)
 
 liaison_tc_v2 <- function(page) {
   
@@ -207,7 +207,7 @@ liaison_tc_v2 <- function(page) {
                     title = tc_name, 
                     acronym = acronym,
                     date = date,
-                    webid = str_remove_all(page, "../../data/archive_liaison/version2/tc_site/|_[0-9]{4}-[0-9]{2}-[0-9]{2}.htm"))
+                    webid = str_remove_all(page, "../raw_data/archive_liaison/version2/tc_site/|_[0-9]{4}-[0-9]{2}-[0-9]{2}.htm"))
     
   } else { 
     
@@ -228,8 +228,8 @@ liaison_tc_v2 <- lapply(files, liaison_tc_v2)
 
 ##### 1
 
-files <- list.files("../../data/archive_liaison/version2/organization_site/", full.names = TRUE)  %>%
-  str_remove("../../data/archive_liaison/version2/organization_site/tc_folder") %>%
+files <- list.files("../raw_data/archive_liaison/version2/organization_site/", full.names = TRUE)  %>%
+  str_remove("../raw_data/archive_liaison/version2/organization_site/tc_folder") %>%
   stringi::stri_remove_empty_na()
 
 liaison_org_v2 <- function(page) {
@@ -265,7 +265,7 @@ liaison_org_v2 <- function(page) {
                   address = str_squish(address),
                   country = word(address, -1),
                   date = date,
-                  webid = str_remove_all(page, "../../data/archive_liaison/version2/organization_site/|_[0-9]{4}-[0-9]{2}-[0-9]{2}.htm"))
+                  webid = str_remove_all(page, "../raw_data/archive_liaison/version2/organization_site/|_[0-9]{4}-[0-9]{2}-[0-9]{2}.htm"))
   
   return(table)
   
@@ -277,7 +277,7 @@ liaison_org_v2 <- lapply(files, liaison_org_v2)
 
 ###### 2
 
-files <- list.files("../../data/archive_liaison/version2/organization_site/tc_folder/", full.names = TRUE)
+files <- list.files("../raw_data/archive_liaison/version2/organization_site/tc_folder/", full.names = TRUE)
 
 liaison_orgtc_v2 <- function(page) {
   
@@ -310,7 +310,7 @@ liaison_orgtc_v2 <- function(page) {
                     name = str_squish(name), 
                     liaisons = liaisons,
                     date_orgtc = date,
-                    webid_orgtc = str_remove_all(page, "../../data/archive_liaison/version2/organization_site/tc_folder/|_[0-9]{4}-[0-9]{2}-[0-9]{2}.htm"))
+                    webid_orgtc = str_remove_all(page, "../raw_data/archive_liaison/version2/organization_site/tc_folder/|_[0-9]{4}-[0-9]{2}-[0-9]{2}.htm"))
     
     return(table)
     
@@ -365,14 +365,14 @@ liaison_v2_table <- liaison_org_v2_table %>%
 
 ## Still some NA for some organizations on some countries
     
-saveRDS(liaison_v2_table, file = "../../data/archive_liaison/liaison_v2_table.rds")
+saveRDS(liaison_v2_table, file = "../raw_data/archive_liaison/liaison_v2_table.rds")
 
 
 ##### VERSION 3 #####
 
 ### TC ###
 
-files <- list.files("../../data/archive_liaison/version3/tc_site/", full.names = TRUE)
+files <- list.files("../raw_data/archive_liaison/version3/tc_site/", full.names = TRUE)
 
 liaison_tc_v3 <- function(page) {
   
@@ -434,7 +434,7 @@ liaison_tc_v3 <- function(page) {
                       title = tc_name, 
                       acronym = acronym,
                       date = date,
-                      webid = str_remove_all(page, "../../data/archive_liaison/version3/tc_site/|_[0-9]{4}-[0-9]{2}-[0-9]{2}.htm"))
+                      webid = str_remove_all(page, "../raw_data/archive_liaison/version3/tc_site/|_[0-9]{4}-[0-9]{2}-[0-9]{2}.htm"))
       
     } 
     
@@ -468,7 +468,7 @@ liaison_tc_v3 <- function(page) {
                         title = tc_name, 
                         acronym = acronym,
                         date = date,
-                        webid = str_remove_all(page, "../../data/archive_liaison/version3/tc_site/|_[0-9]{4}-[0-9]{2}-[0-9]{2}.htm"))
+                        webid = str_remove_all(page, "../raw_data/archive_liaison/version3/tc_site/|_[0-9]{4}-[0-9]{2}-[0-9]{2}.htm"))
         
       } 
     
@@ -503,7 +503,7 @@ liaison_tc_v3 <- function(page) {
                           title = tc_name, 
                           acronym = acronym,
                           date = date,
-                          webid = str_remove_all(page, "../../data/archive_liaison/version3/tc_site/|_[0-9]{4}-[0-9]{2}-[0-9]{2}.htm"))
+                          webid = str_remove_all(page, "../raw_data/archive_liaison/version3/tc_site/|_[0-9]{4}-[0-9]{2}-[0-9]{2}.htm"))
         
     } else { 
       
@@ -523,8 +523,8 @@ liaison_tc_v3 <- lapply(files, liaison_tc_v3)
 
 ##### 1
 
-files <- list.files("../../data/archive_liaison/version3/organization_site/", full.names = TRUE)   %>%
-  str_remove("../../data/archive_liaison/version3/organization_site/tc_folder") %>%
+files <- list.files("../raw_data/archive_liaison/version3/organization_site/", full.names = TRUE)   %>%
+  str_remove("../raw_data/archive_liaison/version3/organization_site/tc_folder") %>%
   stringi::stri_remove_empty_na()
 
 liaison_org_v3 <- function(page) {
@@ -561,7 +561,7 @@ liaison_org_v3 <- function(page) {
                     address = str_squish(address),
                     country = word(address, -1),
                     date = date,
-                    webid = str_remove_all(page, "../../data/archive_liaison/version3/organization_site/|_[0-9]{4}-[0-9]{2}-[0-9]{2}.htm"))
+                    webid = str_remove_all(page, "../raw_data/archive_liaison/version3/organization_site/|_[0-9]{4}-[0-9]{2}-[0-9]{2}.htm"))
     
     return(table)
     
@@ -573,7 +573,7 @@ liaison_org_v3 <- lapply(files, liaison_org_v3)
 
 ###### 2
 
-files <- list.files("../../data/archive_liaison/version3/organization_site/tc_folder/", full.names = TRUE)
+files <- list.files("../raw_data/archive_liaison/version3/organization_site/tc_folder/", full.names = TRUE)
 
 liaison_orgtc_v3 <- function(page) {
   
@@ -606,7 +606,7 @@ liaison_orgtc_v3 <- function(page) {
                     name = str_squish(name), 
                     liaisons = liaisons,
                     date_orgtc = date,
-                    webid_orgtc = str_remove_all(page, "../../data/archive_liaison/version2/organization_site/tc_folder/|_[0-9]{4}-[0-9]{2}-[0-9]{2}.htm"))
+                    webid_orgtc = str_remove_all(page, "../raw_data/archive_liaison/version2/organization_site/tc_folder/|_[0-9]{4}-[0-9]{2}-[0-9]{2}.htm"))
     
     return(table)
     
@@ -661,13 +661,13 @@ liaison_v3_table <- liaison_org_v3_table %>%
 
 ## Still some NA for some organizations on some countries
 
-saveRDS(liaison_v3_table, file = "../../data/archive_liaison/liaison_v3_table.rds")
+saveRDS(liaison_v3_table, file = "../raw_data/archive_liaison/liaison_v3_table.rds")
 
 
 
 ##### VERSION 4 #####
 
-files <- list.files("../../data/archive_liaison/version4/", full.names = TRUE) 
+files <- list.files("../raw_data/archive_liaison/version4/", full.names = TRUE) 
 
 liaison_v4 <- function(page) {
 
@@ -703,7 +703,7 @@ liaison_v4 <- function(page) {
                     country = word(address, -1),
                     date = date,
                     liaison = liaisons %>% nest(),
-                    webid = str_remove_all(page, "../../data/archive_liaison/version4/|_[0-9]{4}-[0-9]{2}-[0-9]{2}.htm"))
+                    webid = str_remove_all(page, "../raw_data/archive_liaison/version4/|_[0-9]{4}-[0-9]{2}-[0-9]{2}.htm"))
     
     return(table)
     
@@ -729,12 +729,12 @@ liaison_v4_table <- bind_rows(liaison_v4) %>%
          title = X2,
          Type = X3)
 
-saveRDS(liaison_v4_table, file = "../../data/archive_liaison/liaison_v4_table.rds")
+saveRDS(liaison_v4_table, file = "../raw_data/archive_liaison/liaison_v4_table.rds")
 
 
 ##### CURRENT VERSION #####
 
-files <- list.files("../../data/archive_liaison/current-2023-07-31/", full.names = TRUE) 
+files <- list.files("../raw_data/archive_liaison/current-2023-07-31/", full.names = TRUE) 
 
 liaison_current <- function(page) { # Webpage hasn't changed since 2017, so procedure follows that of version 4
   
@@ -767,7 +767,7 @@ liaison_current <- function(page) { # Webpage hasn't changed since 2017, so proc
                   country = word(address, -1),
                   date = date,
                   liaison = liaisons %>% nest(),
-                  webid = str_remove_all(page, "../../data/archive_liaison/current-2023-07-31/|_[0-9]{4}-[0-9]{2}-[0-9]{2}.htm"))
+                  webid = str_remove_all(page, "../raw_data/archive_liaison/current-2023-07-31/|_[0-9]{4}-[0-9]{2}-[0-9]{2}.htm"))
   
   return(table)
   
@@ -790,6 +790,6 @@ liaison_current_table <- bind_rows(liaison_current) %>%
          title = X2,
          Type = X3)
 
-saveRDS(liaison_current_table, file = "../../data/archive_liaison/liaison_current_table.rds")
+saveRDS(liaison_current_table, file = "../raw_data/archive_liaison/liaison_current_table.rds")
 
 

@@ -3,10 +3,10 @@
 #################################                           CLEANING                             ##############################
 ###############################################################################################################################
 
-tc_names <- readRDS("../../data/archive_members/participants_v1.rds") %>%
+tc_names <- readRDS("../raw_data/archive_members/participants_v1.rds") %>%
   select(committee, title)
 
-liaison_v1 <- read_rds("../../data/archive_liaison/liaison_v1_table.rds") %>% 
+liaison_v1 <- read_rds("../raw_data/archive_liaison/liaison_v1_table.rds") %>% 
   rename(name = organization) %>%
   mutate(year = str_extract(date, "[0-9]{4}")) %>%
   unnest(cols = c(liaison)) %>%
@@ -16,20 +16,20 @@ liaison_v1 <- read_rds("../../data/archive_liaison/liaison_v1_table.rds") %>%
   left_join(tc_names, by = join_by(committee)) %>%
   select(acronym, name, address, country, year, committee, title, type)
 
-liaison_v2 <- read_rds("../../data/archive_liaison/liaison_v2_table.rds") %>%
+liaison_v2 <- read_rds("../raw_data/archive_liaison/liaison_v2_table.rds") %>%
   rename(type = Type) %>%
   select(acronym, name, address, country, year, committee, title, type)
 
-liaison_v3 <- read_rds("../../data/archive_liaison/liaison_v3_table.rds") %>%
+liaison_v3 <- read_rds("../raw_data/archive_liaison/liaison_v3_table.rds") %>%
   rename(type = Type) %>%
   select(acronym, name, address, country, year, committee, title, type)
 
-liaison_v4 <- read_rds("../../data/archive_liaison/liaison_v4_table.rds") %>%
+liaison_v4 <- read_rds("../raw_data/archive_liaison/liaison_v4_table.rds") %>%
   rename(type = Type) %>%
   mutate(year = str_extract(date, "[0-9]{4}")) %>%
   select(acronym, name, address, country, year, committee, title, type)
 
-liaison_current_2023 <- read_rds("../../data/archive_liaison/liaison_current_table.rds") %>%
+liaison_current_2023 <- read_rds("../raw_data/archive_liaison/liaison_current_table.rds") %>%
   rename(type = Type) %>%
   mutate(year = 2023) %>%
   select(acronym, name, address, country, year, committee, title, type)
@@ -140,93 +140,111 @@ rm(liaison_v1, liaison_v2, liaison_v3, liaison_v4, liaison_current_2023)
 ## Filling in potentially missing years (between two years) - marking these impute_year_1 = 1 ##
 
 liaison_wayback <- liaison_wayback %>%
+  select(-address) %>%
+  mutate(committee = str_replace(committee, "^[IEC ]*", ""),
+         committee = str_replace(committee, "\\/WG [0-9]+", ""),
+         committee = str_replace(committee, "\\/JWG [0-9]+", "")) %>%
   group_by(acronym, name, country) %>%
   mutate(impute_year_1 = 0) %>%
   complete(year = seq(min(year), max(year), by = 1)) %>%
   mutate(impute_year_1 = ifelse(is.na(impute_year_1), 1, impute_year_1)) %>%
-  ungroup()
+  ungroup() 
+
+liaison_wayback <- impute_knn(
+  liaison_wayback,
+  committee ~ title + name | acronym,
+  pool = "complete",
+  k = 2)
+
+liaison_wayback <- impute_knn(
+  liaison_wayback,
+  title ~ committee + name | acronym,
+  pool = "complete",
+  k = 2)
+
+liaison_wayback <- liaison_wayback %>% 
+  distinct(acronym, name, country, committee, year, .keep_all = TRUE)
 
 ## Filling in years otherwise in the sample possibly lost - marking these impute_year_2 = 1 ##
 
 # Make a dataframe with all the potential years, memberships and country combinations there are
-years <- as.numeric(c(2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023))
-acronyms <- liaison_wayback %>% select(acronym) %>% unique() %>% pull(acronym)
-names <- liaison_wayback %>% select(name) %>% unique() %>% na.omit() %>% pull(name)
-
-acronyms_full <- tibble(acronym = rep(acronyms, each = length(years)),
-                         year = rep(years, length(acronyms))) # First make a dataset and repeat the years and countries/acronyms according to each others' length
-
-liaison_wayback <- liaison_wayback %>%
-  mutate(impute_year_2 = 0) %>%
-  full_join(acronyms_full, by = c("year", "acronym")) %>% # Right join so that all rows without data originally are now given NA
-  mutate(impute_year_2 = ifelse(is.na(impute_year_2), 1, impute_year_2))
+# years <- as.numeric(c(2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023))
+# acronyms <- liaison_wayback %>% select(acronym) %>% unique() %>% pull(acronym)
+# names <- liaison_wayback %>% select(name) %>% unique() %>% na.omit() %>% pull(name)
+# 
+# acronyms_full <- tibble(acronym = rep(acronyms, each = length(years)),
+#                          year = rep(years, length(acronyms))) # First make a dataset and repeat the years and countries/acronyms according to each others' length
+# 
+# liaison_wayback <- liaison_wayback %>%
+#   mutate(impute_year_2 = 0) %>%
+#   full_join(acronyms_full, by = c("year", "acronym")) %>% # Right join so that all rows without data originally are now given NA
+#   mutate(impute_year_2 = ifelse(is.na(impute_year_2), 1, impute_year_2))
 # OBS: NAs might both be because the given organization was not in a technical committee at that time, and because Wayback did not save that webpage
 
 ## Adding country of organization based on available data from other webpages
-liaison_wayback <- liaison_wayback %>% 
-  group_by(country) %>% 
-  summarise(n = n()) %>% 
-  left_join(liaison_wayback, by = c("country")) %>%  
-  group_by(acronym) %>% 
-  arrange(desc(n), .by_group = TRUE) %>% 
-  mutate(country = first(na.omit(country))) %>% 
+liaison_wayback <- liaison_wayback %>%
+  group_by(country) %>%
+  summarise(n = n()) %>%
+  left_join(liaison_wayback, by = c("country")) %>%
+  group_by(acronym) %>%
+  arrange(desc(n), .by_group = TRUE) %>%
+  mutate(country = first(na.omit(country))) %>%
   select(-n)  %>%
   ungroup()
 
 ## Adding name of organization based on similiar methods as above
-liaison_wayback <- liaison_wayback %>% 
-  group_by(name) %>% 
-  summarise(n = n()) %>% 
-  left_join(liaison_wayback, by = c("name")) %>%  
-  group_by(acronym, country) %>% 
-  arrange(desc(n), .by_group = TRUE) %>% 
-  mutate(name = first(na.omit(name))) %>% 
+liaison_wayback <- liaison_wayback %>%
+  group_by(name) %>%
+  summarise(n = n()) %>%
+  left_join(liaison_wayback, by = c("name")) %>%
+  group_by(acronym, country) %>%
+  arrange(desc(n), .by_group = TRUE) %>%
+  mutate(name = first(na.omit(name))) %>%
   select(-n) %>%
   ungroup()
 
-# Same imputation method of missing TC as for members
-liaison_wayback_na <- liaison_wayback %>%
-  mutate(year = as.numeric(year)) %>%
-  mutate(var = ifelse(is.na(committee) & year < 2004 | is.na(committee) & year == 2023 & year == 2022, "ok1",
-                      ifelse(!is.na(committee) & year < 2004 | !is.na(committee) & year != 2023 & year != 2022, "ok2", 
-                             "missing")))
+# # Same imputation method of missing TC as for members
+# liaison_wayback_na <- liaison_wayback %>%
+#   mutate(year = as.numeric(year)) %>%
+#   mutate(var = ifelse(is.na(committee) & year < 2004 | is.na(committee) & year == 2023 & year == 2022, "ok1",
+#                       ifelse(!is.na(committee) & year < 2004 | !is.na(committee) & year != 2023 & year != 2022, "ok2", 
+#                              "missing")))
+# 
+# liaison_wayback_na <- liaison_wayback_na %>% # Adding a missing variable
+#   filter(var != "ok1") %>%
+#   select(-var)
+# 
+# organizations <- liaison_wayback_na %>% select(acronym) %>% 
+#   pull() %>% unique()
+# 
+# acronyms_list <- list()
+# 
+# for (i in 1:length(organizations)) {
+#   
+#   tmp <- liaison_wayback_na %>%
+#     mutate(year = as.numeric(year)) %>% # Make the year variable numeric to that it can be ordered
+#     filter(acronym == organizations[i]) %>% # Filter out each organization
+#     mutate(impute = ifelse(is.na(title) & is.na(committee), 1, 0)) %>% # Make a variable that takes "impute" if there are missing values
+#     group_by(year, impute) %>% # Group by variables and....
+#     nest() %>% # ... make nested columns with info on committee membership in given years
+#     arrange(-desc(year)) %>% # Order the years
+#     ungroup() %>% # Ungroup to not create clutter later 
+#     mutate(change = ifelse(lead(impute, 1) == 1 & impute == 0, 1, 0)) # A variable telling us which is the closest year with non-missing values
+#   
+#   acronyms_list[[i]] <- tmp %>% 
+#     mutate(data2 = ifelse(impute == 1, # If impute is 1
+#                           tmp %>% filter(impute == 0 & change == 1) %>% select(data) %>% pull(), # Then fill the row with info from the closest observation with non-missing values
+#                           data)) %>% # Otherwise, just reproduce the nested cell
+#     select(-change) # Remove the change variable
+#   
+# }
+# 
+# liaison_wayback_imputed <- bind_rows(acronyms_list) %>%
+#   select(-data) %>% # Remove old nested variable
+#   unnest(cols = c(data2)) # Unnest the new imputed variable
 
-liaison_wayback_na <- liaison_wayback_na %>% # Adding a missing variable
-  filter(var != "ok1") %>%
-  select(-var)
-
-organizations <- liaison_wayback_na %>% select(acronym) %>% 
-  pull() %>% unique()
-
-acronyms_list <- list()
-
-for (i in 1:length(organizations)) {
-  
-  tmp <- liaison_wayback_na %>%
-    mutate(year = as.numeric(year)) %>% # Make the year variable numeric to that it can be ordered
-    filter(acronym == organizations[i]) %>% # Filter out each organization
-    mutate(impute = ifelse(is.na(title) & is.na(committee), 1, 0)) %>% # Make a variable that takes "impute" if there are missing values
-    group_by(year, impute) %>% # Group by variables and....
-    nest() %>% # ... make nested columns with info on committee membership in given years
-    arrange(-desc(year)) %>% # Order the years
-    ungroup() %>% # Ungroup to not create clutter later 
-    mutate(change = ifelse(lead(impute) == 1 & impute == 0, 1, 0)) # A variable telling us which is the closest year with non-missing values
-  
-  acronyms_list[[i]] <- tmp %>% 
-    mutate(data2 = ifelse(impute == 1, # If impute is 1
-                          tmp %>% filter(impute == 0 & change == 1) %>% select(data) %>% pull(), # Then fill the row with info from the closest observation with non-missing values
-                          data)) %>% # Otherwise, just reproduce the nested cell
-    select(-change) # Remove the change variable
-  
-}
-
-liaison_wayback_imputed <- bind_rows(acronyms_list) %>%
-  select(-data) %>% # Remove old nested variable
-  unnest(cols = c(data2)) # Unnest the new imputed variable
-
-liaison_wayback_imputed %>%
-  na.omit() %>%
-  mutate(` ` = ifelse(impute == 0, "Original", "Imputed")) %>%
+liaison_wayback %>%
+  mutate(` ` = ifelse(impute_year_1 == 0, "Original", "Imputed")) %>%
   ggplot(aes(year, acronym, fill = ` `)) +
   scale_fill_manual(values = c("gray", "black")) +
   geom_tile() +
@@ -235,9 +253,12 @@ liaison_wayback_imputed %>%
   theme(legend.position = "bottom",
         axis.text.y = element_text(size = 6))
 
+ggsave("../figures/imputations_liaison.png", width = 10, height = 12)
+
+
 ###### 3. Classification of organizations ########
 
-organizations <- liaison_wayback_imputed %>%
+organizations <- liaison_wayback %>%
   select(acronym, name) %>%
   unique() %>%
   na.omit()
@@ -360,7 +381,7 @@ organizations_tagged <- tibble(category = unlist(openai_completions)) %>%
   filter(category_ok == TRUE) %>%
   mutate(Category = str_extract(Category, "[0-9]"))
 
-organizations_fixed <- read.csv("../../data/archive_liaison/ai_tagging/errors.csv") %>%
+organizations_fixed <- read.csv("../raw_data/archive_liaison/ai_tagging/errors.csv") %>%
   mutate(Category = as.character(Category)) %>%
   mutate_all(str_squish)
 
@@ -368,14 +389,45 @@ organizations_tagged_finished <- bind_rows(organizations_tagged, organizations_f
   select(Acronym, Name, Category, Justification) %>%
   rename_all(str_to_lower) 
 
-category_justification <- organizations_tagged_finished %>%
-  select(acronym, country, category, justification) %>%
-  unique()
+# saveRDS(category_justification, file = "../_raw_data/archive_liaison/ai_tagging/category_justification.rds")
 
-# saveRDS(category_justification, file = "../../data/archive_liaison/ai_tagging/category_justification.rds")
+liaison_wayback <- liaison_wayback %>%
+  left_join(category_justification, by = join_by(acronym, country), relationship = "many-to-many") %>%
+  rename(impute = impute_year_1) %>%
+  left_join(categories %>% rename(category_text = category, category = category_number), by = join_by(category)) %>%
+  select(acronym, name, year, country, category, category_text, description, justification, committee, title, type, impute) %>%
+  distinct()
 
-liaison_wayback <- liaison_wayback_imputed %>% 
-  left_join(category_justification, by = join_by(country, acronym), relationship = "many-to-many")
+## Sectors 
+sectors <- readRDS("../datasets/sectors.rds") %>%
+  unnest() %>%
+  ungroup() %>%
+  mutate(committee = str_remove_all(committee, "ISO/"),
+         committee = str_remove_all(committee, "IEC "))
 
-saveRDS(liaison_wayback, file = "../../data/final_data/liaison.rds")
+liaison_wayback <- liaison_wayback %>%
+  left_join(sectors, by = join_by("committee"), relationship = "many-to-many")
+
+na_sectors <- liaison_wayback %>%
+  distinct() %>% 
+  filter(is.na(sector))
+
+na_sectors_filled <- na_sectors %>% 
+  select(-sector) %>%
+  mutate(committee2 = str_remove(committee, "\\/SC.*")) %>%
+  left_join(sectors, by = c("committee2" = "committee")) %>%
+  select(-committee2)
+
+liaison_wayback <- liaison_wayback %>%
+  anti_join(na_sectors, by = join_by(committee, title)) %>%
+  bind_rows(na_sectors_filled)
+
+# test <- liaison_wayback %>% 
+#   select(committee, title, sector) %>%
+#   drop_na(committee) %>%
+#   filter(is.na(sector)) %>%
+#   filter(str_detect(committee, "TC|PC")) %>% 
+#   unique()
+
+saveRDS(liaison_wayback, file = "../datasets/liaison.rds")
 

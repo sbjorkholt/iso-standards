@@ -19,7 +19,7 @@ ids <- str_c(acronym, "_", dates) # Add together to an id
 
 walk2(urls, ids, function(link, id) { # Download the files to a local folder
   
-  destfile <- paste0("../../data/archive_liaison/version1/", id, ".htm")
+  destfile <- paste0("../raw_data/archive_liaison/version1/", id, ".htm")
   
   if(!file.exists(destfile)){
     
@@ -56,7 +56,7 @@ ids <- str_c(acronym, "_", dates)
 
 walk2(urls, ids, function(link, id) {
 
-  destfile <- paste0("../../data/archive_liaison/version2/tc_site/", id, ".htm")
+  destfile <- paste0("../raw_data/archive_liaison/version2/tc_site/", id, ".htm")
 
   if(!file.exists(destfile)){
 
@@ -89,7 +89,7 @@ ids <- str_c(acronym, "_", dates)
 
 walk2(urls, ids, function(link, id) {
 
-  destfile <- paste0("../../data/archive_liaison/version2/organization_site/", id, ".htm")
+  destfile <- paste0("../raw_data/archive_liaison/version2/organization_site/", id, ".htm")
 
   if(!file.exists(destfile)){
 
@@ -115,7 +115,7 @@ ids <- str_c(acronym, "_", dates)
 
 walk2(urls, ids, function(link, id) {
   
-  destfile <- paste0("../../data/archive_liaison/version2/organization_site/tc_folder/", id, ".htm")
+  destfile <- paste0("../raw_data/archive_liaison/version2/organization_site/tc_folder/", id, ".htm")
   
   if(!file.exists(destfile)){
     
@@ -149,7 +149,7 @@ ids <- str_c(acronym, "_", dates)
 
 walk2(urls, ids, function(link, id) {
   
-  destfile <- paste0("../../data/archive_liaison/version3/tc_site/", id, ".htm")
+  destfile <- paste0("../raw_data/archive_liaison/version3/tc_site/", id, ".htm")
   
   if(!file.exists(destfile)){
     
@@ -183,7 +183,7 @@ ids <- str_c(acronym, "_", dates)
 
 walk2(urls, ids, function(link, id) {
   
-  destfile <- paste0("../../data/archive_liaison/version3/organization_site/", id, ".htm")
+  destfile <- paste0("../raw_data/archive_liaison/version3/organization_site/", id, ".htm")
   
   if(!file.exists(destfile)){
     
@@ -210,7 +210,7 @@ ids <- str_c(acronym, "_", dates)
 
 walk2(urls, ids, function(link, id) {
   
-  destfile <- paste0("../../data/archive_liaison/version3/organization_site/tc_folder/", id, ".htm")
+  destfile <- paste0("../raw_data/archive_liaison/version3/organization_site/tc_folder/", id, ".htm")
   
   if(!file.exists(destfile)){
     
@@ -237,7 +237,7 @@ ids <- str_c(acronym, "_", dates)
 
 walk2(urls, ids, function(link, id) {
   
-  destfile <- paste0("../../data/archive_liaison/version4/", id, ".htm")
+  destfile <- paste0("../raw_data/archive_liaison/version4/", id, ".htm")
   
   if(!file.exists(destfile)){
     
@@ -265,7 +265,7 @@ ids <- str_c(acronym, "_", dates)
 
 walk2(urls, ids, function(link, id) {
   
-  destfile <- paste0("../../data/archive_liaison/current-2023-07-31/", id, ".htm")
+  destfile <- paste0("../raw_data/archive_liaison/current-2023-07-31/", id, ".htm")
   
   if(!file.exists(destfile)){
     

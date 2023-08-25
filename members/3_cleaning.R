@@ -3,12 +3,12 @@
 #################################                           CLEANING                             ##############################
 ###############################################################################################################################
 
-participant_v1 <- read_rds("../../data/archive_members/participants_v1.rds")
-participant_v2 <- read_rds("../../data/archive_members/participants_v2.rds")
-participant_v3 <- read_rds("../../data/archive_members/participants_v3.rds")
-participant_v4 <- read_rds("../../data/archive_members/participants_v4.rds")
-participant_current_2022 <- read_rds("../../data/archive_members/participants_current_2022.rds")
-participant_current_2023 <- read_rds("../../data/archive_members/participants_current_2023.rds")
+participant_v1 <- read_rds("../raw_data/archive_members/participants_v1.rds")
+participant_v2 <- read_rds("../raw_data/archive_members/participants_v2.rds")
+participant_v3 <- read_rds("../raw_data/archive_members/participants_v3.rds")
+participant_v4 <- read_rds("../raw_data/archive_members/participants_v4.rds")
+participant_current_2022 <- read_rds("../raw_data/archive_members/participants_current_2022.rds")
+participant_current_2023 <- read_rds("../raw_data/archive_members/participants_current_2023.rds")
 
 #### 1. Order data and fix names so that they correspond over time ####
 
@@ -300,10 +300,11 @@ participants <- memberships %>%
   mutate(date_duplicate = ifelse(country == "United States" & year == 2013 & committee == "TC 28" & membership == "Secretariat", 1, 0), # Some duplicates are due to change in secretariat over the year
          date_duplicate = ifelse(country == "Portugal" & year == 2011 & committee == "TC 38/SC 24" & membership == "Secretariat", 1, date_duplicate)) %>% # This is easy to see when it goes to twin secretariat, cause then you have 3 countries for one year
   filter(date_duplicate != 1) %>%
-  mutate(membership = ifelse(membership == "Secretariat" & n == 2, "Twinned secretariat", membership)) # For the last there might also be a shift half-year, but I assume twinned secretariat based on some checks
+  mutate(membership = ifelse(membership == "Secretariat" & n == 2, "Twinned secretariat", membership)) %>% # For the last there might also be a shift half-year, but I assume twinned secretariat based on some checks
+  ungroup()
 
 participants %>%
-  na.omit() %>%
+  #na.omit() %>%
   mutate(` ` = ifelse(impute == 0, "Original", "Imputed")) %>%
   ggplot(aes(year, country, fill = ` `)) +
   scale_fill_manual(values = c("gray", "black")) +
@@ -314,7 +315,45 @@ participants %>%
   theme(legend.position = "bottom",
         axis.text.y = element_text(size = 6))
 
-saveRDS(participants, file = "../../data/final_data/participants.rds")
+#ggsave("../figures/imputations.png", width = 10, height = 12)
+
+
+## Sectors 
+sectors <- readRDS("../datasets/sectors.rds") %>%
+  unnest() %>%
+  ungroup() %>%
+  mutate(committee = str_remove_all(committee, "ISO/"),
+         committee = str_remove_all(committee, "IEC "))
+
+participants <- participants %>%
+  left_join(sectors, by = join_by("committee"), relationship = "many-to-many")
+
+na_sectors <- participants %>%
+  distinct() %>% 
+  filter(is.na(sector))
+
+na_sectors_filled <- na_sectors %>% 
+  select(-sector) %>%
+  mutate(committee2 = str_remove(committee, "\\/SC.*")) %>%
+  left_join(sectors, by = c("committee2" = "committee")) %>%
+  select(-committee2)
+
+participants <- participants %>%
+  anti_join(na_sectors, by = join_by(committee, title)) %>%
+  bind_rows(na_sectors_filled)
+
+# test <- participants2 %>%
+#   select(committee, title, sector) %>%
+#   drop_na(committee) %>%
+#   filter(is.na(sector)) %>%
+#   filter(str_detect(committee, "TC|PC")) %>%
+#   unique()
+
+participants <- participants %>%
+  select(country, sdo, year, committee, title, membership, standby, impute, sector) %>%
+  ungroup()
+
+saveRDS(participants, file = "../datasets/participants.rds")
 
 ### 4. Checking data on plots ###
 
@@ -330,7 +369,7 @@ for (i in 1:length(countries)) {
     ggplot(aes(year, n, color = membership)) + 
     geom_point() 
 
-    ggsave(plot, filename = str_c("../../data/archive/eyeballs/", countries[i], ".png"))
+    ggsave(plot, filename = str_c("../data/archive/eyeballs/", countries[i], ".png"))
   
 }
 

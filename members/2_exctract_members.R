@@ -6,14 +6,14 @@
 
 ##### VERSION 1 #####
 
-files <- list.files("../../data/archive_members/version1/", full.names = TRUE) # List up the downloaded webpages
-names <- read_csv("../../data/archive_members/acronyms_v1.csv") %>% janitor::clean_names() %>% select(acronym, country) # Read in csv with list of standard body names and country they belong to 
+files <- list.files("../raw_data/archive_members/version1/", full.names = TRUE) # List up the downloaded webpages
+names <- read_csv("../raw_data/archive_members/acronyms_v1.csv") %>% janitor::clean_names() %>% select(acronym, country) # Read in csv with list of standard body names and country they belong to 
 
 members_v1 <- function(page) {
   
   tryCatch({
     
-  name <- str_remove_all(page, "../../data/archive_members/version1/|_[0-9]+-[0-9]+-[0-9]+.htm") %>% # Remove date from linkname, stripping down to acronym
+  name <- str_remove_all(page, "../raw_data/archive_members/version1/|_[0-9]+-[0-9]+-[0-9]+.htm") %>% # Remove date from linkname, stripping down to acronym
     tibble(acronym = .) %>% # Make a tibble
     left_join(names, by = "acronym") # Left join with csv-file with country names
   
@@ -33,7 +33,7 @@ members_v1 <- function(page) {
                      committee = table$X2,
                      title = table$X3,
                      membership = table$X4,
-                     webid = str_remove_all(page, "../../data/archive_members/version1/|_[0-9]{4}-[0-9]{2}-[0-9]{2}.htm")) 
+                     webid = str_remove_all(page, "../raw_data/archive_members/version1/|_[0-9]{4}-[0-9]{2}-[0-9]{2}.htm")) 
   
   return(timeback)
   
@@ -45,12 +45,12 @@ membership_v1 <- lapply(files, members_v1) # Run the function on all webpages fr
 
 membership_v1_table <- do.call(rbind, membership_v1) # Bind the lists into a dataframe
 
-# saveRDS(membership_v1_table, file = "../../data/archive_members/participants_v1.rds")
+# saveRDS(membership_v1_table, file = "../raw_data/archive_members/participants_v1.rds")
 
 ##### VERSION 2 #####
 
-files <- list.files("../../data/archive_members/version2/", full.names = TRUE) %>%
-  str_remove("../../data/archive_members/version2/pdc") %>%
+files <- list.files("../raw_data/archive_members/version2/", full.names = TRUE) %>%
+  str_remove("../raw_data/archive_members/version2/pdc") %>%
   stringi::stri_remove_empty_na()
 
 members_v2 <- function(page) {
@@ -88,7 +88,7 @@ members_v2 <- function(page) {
                      committee = str_squish(table$committee),
                      title = str_squish(table$title),
                      membership = table$membership,
-                     webid = str_remove_all(page, "../../data/archive_members/version2/|_[0-9]{4}-[0-9]{2}-[0-9]{2}.htm"))
+                     webid = str_remove_all(page, "../raw_data/archive_members/version2/|_[0-9]{4}-[0-9]{2}-[0-9]{2}.htm"))
   
   return(timeback)
   
@@ -103,13 +103,13 @@ membership_v2_table <- do.call(rbind, membership_v2) %>%
                           "INSM", acronym), # Fixing this manually
          country = str_remove(country, "\\(insm\\)")) # Clean
 
-saveRDS(membership_v2_table, file = "../../data/archive_members/participants_v2.rds")
+saveRDS(membership_v2_table, file = "../raw_data/archive_members/participants_v2.rds")
 
 
 ##### VERSION 3 #####
 
-files <- list.files("../../data/archive_members/version3/", full.names = TRUE) %>%
-  str_remove("../../data/archive_members/version3/pdc") %>%
+files <- list.files("../raw_data/archive_members/version3/", full.names = TRUE) %>%
+  str_remove("../raw_data/archive_members/version3/pdc") %>%
   stringi::stri_remove_empty_na()
 
 members_v3 <- function(page) {
@@ -147,7 +147,7 @@ members_v3 <- function(page) {
                        committee = str_squish(table$committee),
                        title = str_squish(table$title),
                        membership = table$membership,
-                       webid = str_remove_all(page, "../../data/archive_members/version3/|_[0-9]{4}-[0-9]{2}-[0-9]{2}.htm"))
+                       webid = str_remove_all(page, "../raw_data/archive_members/version3/|_[0-9]{4}-[0-9]{2}-[0-9]{2}.htm"))
   
     return(timeback)
     
@@ -167,7 +167,7 @@ membership_v3_table <- do.call(rbind, membership_v3) %>%
           membership = c("P-member", "P-member"),
           webid = c("5304435", "5304435"))
 
-saveRDS(membership_v3_table, file = "../../data/archive_members/participants_v3.rds")
+saveRDS(membership_v3_table, file = "../raw_data/archive_members/participants_v3.rds")
 
 
 ##### VERSION 4 #####
@@ -175,8 +175,8 @@ saveRDS(membership_v3_table, file = "../../data/archive_members/participants_v3.
 ## Running the TC part would add extra data but also cause issues in imputation since the imputations are per missing country and not per missing TC
 
 # ### TC ###
-# files <- list.files("../../data/archive_members/version4/tc_site/", full.names = TRUE) 
-# names <- read_csv("../../data/archive_members/acronyms_v4.csv") %>% select(acronym, country) 
+# files <- list.files("../raw_data/archive_members/version4/tc_site/", full.names = TRUE) 
+# names <- read_csv("../raw_data/archive_members/acronyms_v4.csv") %>% select(acronym, country) 
 # 
 # members_tc_v4 <- function(page) {
 #   
@@ -218,7 +218,7 @@ saveRDS(membership_v3_table, file = "../../data/archive_members/participants_v3.
 #                        committee = tc,
 #                        title = NA,
 #                        membership = memberships$membership,
-#                        webid = str_remove_all(page, "../../data/archive_members/version4/tc_folder/|_[0-9]{4}-[0-9]{2}-[0-9]{2}_[A-Z]+.htm"))
+#                        webid = str_remove_all(page, "../raw_data/archive_members/version4/tc_folder/|_[0-9]{4}-[0-9]{2}-[0-9]{2}_[A-Z]+.htm"))
 #     
 #     return(timeback)
 #     
@@ -231,8 +231,8 @@ saveRDS(membership_v3_table, file = "../../data/archive_members/participants_v3.
 
 
 ### MEMBER ###
-files <- list.files("../../data/archive_members/version4/member_site/", full.names = TRUE) 
-names <- read_csv("../../data/archive_members/acronyms_v4.csv") %>% select(acronym, country) 
+files <- list.files("../raw_data/archive_members/version4/member_site/", full.names = TRUE) 
+names <- read_csv("../raw_data/archive_members/acronyms_v4.csv") %>% select(acronym, country) 
 # Version 4 does not have country names in webpage, thus need external csv with convertions
 # As acronyms can change, use another one for 2017-2021
 
@@ -260,7 +260,7 @@ members_v4 <- function(page) {
                      committee = str_squish(table$X1),
                      title = str_squish(table$X2),
                      membership = membership,
-                     webid = str_remove_all(page, "../../data/archive_members/version4/|_[0-9]{4}-[0-9]{2}-[0-9]{2}_[A-Z]+.htm"))
+                     webid = str_remove_all(page, "../raw_data/archive_members/version4/|_[0-9]{4}-[0-9]{2}-[0-9]{2}_[A-Z]+.htm"))
     
     return(timeback)
     
@@ -297,15 +297,15 @@ membership_v4_table <- membership_v4_tc_table %>%  # Make into a tibble
                                         ifelse(date == "2019-05-13" & webid == "2036", "INACAL",
                                                acronym)))))
 
-saveRDS(membership_v4_table, file = "../../data/archive_members/participants_v4.rds")
+saveRDS(membership_v4_table, file = "../raw_data/archive_members/participants_v4.rds")
 
 
 ##### CURRENT VERSION #####
 
 ### CURRENT VERSION ROUND 1 ###
 
-files <- list.files("../../data/archive_members/current-2022-08-31/", full.names = TRUE) 
-names <- read_csv("../../data/archive_members/acronyms_v4.csv") %>% select(acronym, country) 
+files <- list.files("../raw_data/archive_members/current-2022-08-31/", full.names = TRUE) 
+names <- read_csv("../raw_data/archive_members/acronyms_v4.csv") %>% select(acronym, country) 
 
 current <- function(page) { # Webpage hasn't changed since 2017, so procedure follows that of version 4
   
@@ -329,7 +329,7 @@ current <- function(page) { # Webpage hasn't changed since 2017, so procedure fo
                      committee = str_squish(table$X1),
                      title = str_squish(table$X2),
                      membership = membership,
-                     webid = str_remove_all(page, "../../data/archive_members/current/|_[0-9]{4}-[0-9]{2}-[0-9]{2}_[A-Z]+.htm"))
+                     webid = str_remove_all(page, "../raw_data/archive_members/current/|_[0-9]{4}-[0-9]{2}-[0-9]{2}_[A-Z]+.htm"))
   
   return(timeback)
   
@@ -347,13 +347,13 @@ membership_current_table1 <- do.call(rbind, membership_current) %>%
                                                          #ifelse(membership == "PP", "P-member PDC",
                                                                 membership)))))
 
-saveRDS(membership_current_table1, file = "../../data/archive_members/participants_current_2022.rds")
+saveRDS(membership_current_table1, file = "../raw_data/archive_members/participants_current_2022.rds")
 
 
 ### CURRENT VERSION ROUND 2 ###
 
-files <- list.files("../../data/archive_members/current-2023-07-26/", full.names = TRUE) 
-names <- read_csv("../../data/archive_members/acronyms_v4.csv") %>% select(acronym, country) 
+files <- list.files("../raw_data/archive_members/current-2023-07-26/", full.names = TRUE) 
+names <- read_csv("../raw_data/archive_members/acronyms_v4.csv") %>% select(acronym, country) 
 
 current <- function(page) { # Webpage hasn't changed since 2017, so procedure follows that of version 4
   
@@ -377,7 +377,7 @@ current <- function(page) { # Webpage hasn't changed since 2017, so procedure fo
                      committee = str_squish(table$X1),
                      title = str_squish(table$X2),
                      membership = membership,
-                     webid = str_remove_all(page, "../../data/archive_members/current/|_[0-9]{4}-[0-9]{2}-[0-9]{2}_[A-Z]+.htm"))
+                     webid = str_remove_all(page, "../raw_data/archive_members/current/|_[0-9]{4}-[0-9]{2}-[0-9]{2}_[A-Z]+.htm"))
   
   return(timeback)
   
@@ -395,5 +395,5 @@ membership_current_table2 <- do.call(rbind, membership_current) %>%
                                                          #ifelse(membership == "PP", "P-member PDC",
                                                                 membership)))))
 
-saveRDS(membership_current_table2, file = "../../data/archive_members/participants_current_2023.rds")
+saveRDS(membership_current_table2, file = "../raw_data/archive_members/participants_current_2023.rds")
 

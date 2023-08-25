@@ -1,0 +1,250 @@
+---
+title: "StanDat Codebook"
+subtitle: "International Standards Database"
+author: "Solveig Bjørkholt"
+toc: true
+format: html
+  # pdf:
+  #   fontsize: 12pt
+  #   include-in-header:
+  #     text: '\pagenumbering{gobble}'
+  #   geometry:
+  #     - left=14mm
+  #     - right=14mm
+  #     - heightrounded
+---
+
+```{r}
+#| include: false
+#| eval: true
+library(dplyr)
+library(gt)
+library(kableExtra)
+
+source("codebook-descriptions.R")
+```
+
+\newpage
+
+## The International Standards Database
+
+The International Standards Database (StanDat) consists of several datasets that covers several aspects of the landscape of international standards. Specifically, the database is designed to answer questions relating to the *process*, the *endorsement* and the *outcome* of standards. The database is based on data from the International Standardization Organization. Although there are many standardization organizations, ISO is the largest on the international arena. For more information on ISO, visit www.iso.org.
+
+The database is categorized into 'Standards', 'Participation', 'Historical' and 'Certifications', each category with 2-3 datasets. 
+
+```{=tex}
+\begingroup
+\setlength{\LTleft}{0pt minus 500pt}
+\setlength{\LTright}{0pt minus 500pt}
+\fontsize{7pt}{10pt}\selectfont
+```
+```{r, results='asis'}
+#| echo: false
+overall_cb %>% kable() %>% kable_styling(full_width = TRUE) %>% 
+  kable_styling() %>% 
+  column_spec(1:2, width_min = "0.1in") 
+```
+
+```{=tex}
+\endgroup
+```
+
+## Standards
+
+These datasets have standards as units, and gives information on when standards were published, the status of the standard, how large they are (in pages), which edition the standard is on, their International Classification for Standards code (ICS) (see https://www.iso.org/standards-catalogue/browse-by-ics.html), abstracts, sustainable developemnt goals that the standard fulfills, and the life cycle of the standard. 
+
+### Status
+
+```{r}
+#| eval: false
+#| echo: false
+standards_cb %>% gt %>% as_latex()
+```
+
+|                  |                                                                             |
+|-----------------|-------------------------------------------------------|
+| **Variable**     | **Definition**                                                              |
+| stdno            | Standard number                                                             |
+| year             | Year the standard was published (standards under development are `NA`)      |
+| title            | Name of TC the standard was developed within                                |
+| committee        | ID of the TC the standard was developed within                              |
+| status           | If the standard is withdrawn, deleted, developing or published              |
+| publication_date | When the standard was published (if published)                              |
+| edition          | The edition of the standard                                                 |
+| pages            | Number of pages of the standard                                             |
+| abstract         | Abstract of the contents of the standard                                    |
+| ics_name         | Name of the ICS code the standard is categorized into (canbe more than one) |
+| ics_id           | ID for the ICS code the standard is categorized into (can be more than one) |
+| link             | Link to the webpage where the information was scraped                       |
+
+### SDGs
+
+This dataset shows the **sustainable development goals** (SDGs) that each standard is reported to address (if any).
+
+|              |                                                                                            |
+|---------------|---------------------------------------------------------|
+| **Variable** | **Definition**                                                                             |
+| stdno        | Standard number                                                                            |
+| year         | Year the standard was published (standards under development are `NA`)                     |
+| title        | Name of TC the standard was developed within                                               |
+| committee    | ID of the TC the standard was developed within                                             |
+| sgd_number   | Number of the sustainability goal that ISO reports the standard to contribute to (if any). |
+| sdg_text     | Name of the sustainability goal that ISO reports the standard to contribute to (if any).   |
+| link         | Link to the webpage where the information was scraped                                      |
+
+### Life cycle
+
+Process of stages for standard, as given by <https://www.iso.org/stage-codes.html> . The units of observation in this dataset is a life cycle stage for a given standard.
+
+|                 |                                                                        |
+|----------------|--------------------------------------------------------|
+| **Variable**    | **Definition**                                                         |
+| stdno           | Standard number                                                        |
+| year            | Year the standard was published (standards under development are `NA`) |
+| title           | Name of TC the standard was developed within                           |
+| committee       | ID of the TC the standard was developed within                         |
+| life_stage      | The stage reported in the life cycle of a given standard               |
+| life_stage_code | The code of the stage reported in the life cycle of a given standard   |
+| date            | Date that the standard was at this life cycle stage                    |
+| link            | Link to the webpage the data was collected from                        |
+
+\newpage
+
+## Participation
+
+These datasets include information on the actors that participate in the production of standards. Standards are produced in various technical committees (TC) that are established based on demand from stakeholders, and proposed by national member bodies. To establish a technical committee, a member body sends a proposal which is then circulated among the other ISO members. At least five other member bodies have to vote in favor for the TC to be established. Those in favor take the role of P-members, and usually, the country responsible for the proposal takes the secretariat. Proposal drafts are often, in the first place, requests from other national actors.
+
+### Countries (member bodies)
+
+Coverage: 2004 - 2023
+
+There are three member categories – full member, correspondent member and subscriber member. Only full members can become P-members (participating members) in TCs, and only P-members are able to participate actively in the technical work of the committee. Observing members are allows to follow the process but are not able to participate.
+
+
+|              |                                                                                                               |
+|--------------|----------------------------------------------------------|
+| **Variable** | **Definition**                                                                                                |
+| country      | Country name                                                                                                  |
+| sdo          | Name of main standardization developing organization in the country                                           |
+| year         | Year of membership                                                                                            |
+| committee    | Number of the TC the country participates in                                                                  |
+| title        | Name of the TC the country participates in                                                                    |
+| membership   | Type of membership, either participating (P-member), observing (O-member), secretariat or twinned secretariat |
+| standby      | Whether the TC was set to standby in the given year                                                           |
+| impute       | Whether memberships were imputed from the previous year                                                       |
+| sector       | The sector that ISO categorizes the TC into                                                                   |
+
+### Organizations (liaison)
+
+Coverage: 2002 - 2023
+
+Among organizations in liaison, there are four member categories, A, B, C and D, depending on how involved the organizations are in the standardization process. 
+
+Using the acronym is more reliable than using the name, as the name has been more often subject to change as webpages change.
+
+|               |                                                                                                                                                                                                       |
+|-------------|-----------------------------------------------------------|
+| **Variable**  | **Definition**                                                                                                                                                                                        |
+| acronym       | Organization's acronym                                                                                                                                                                                |
+| name          | Name of organization                                                                                                                                                                                  |
+| year          | Year of liaison                                                                                                                                                                                       |
+| country       | Country where the organization is located (fetched from address)                                                                                                                                      |
+| category      | Category of the organization of either industry, consultant and registrar, standards organization, government, research, NGO, financial institutions, media, intergovernmental organizations or other |
+| category_text | Category given in text                                                                                                                                                                                |
+| description   | Description of given category                                                                                                                                                                         |
+| justification | Justification from ChatGPT of why the given organization fits into the given category                                                                                                                 |
+| committee     | Number of the committee that the organization was in liaison with                                                                                                                                     |
+| title         | Name of the committee that the organization was in liaison with                                                                                                                                       |
+| type          | Type of liaison for the given organization                                                                                                                                                            |
+| impute        | Whether the membership in given committee was imputed using k-nearest neighbor methods                                                                                                                |
+| sector        | The sector that ISO categorizes the TC into                                                                                                                                                           |
+
+\newpage
+
+## Historical
+
+These datasets show the development of the International Standardization Organization over time in terms of members and technical committees.
+
+### Members
+
+Shows membership in ISO over time. There are three types of membership; Participating member, Correspondent member and Subscriber member. Only P-members can participate actively in technical committees. 
+
+|                   |                                                                                                                                                |
+|--------------|----------------------------------------------------------|
+| **Variable**      | **Definition**                                                                                                                                 |
+| year              | Year                                                                                                                                           |
+| country           | Country                                                                                                                                        |
+| continent         | Continent of country                                                                                                                           |
+| membership_status | Which membership status the country had in the given year. U = No membership, M = membership, C = Correspondent member, S = Subscriber member. |
+| membership_role   | If there were any particular changes to the membership in the given year. with = Withdrawn, sus = Suspended, council = Council.                |
+
+### Technical committees
+
+Technical committees have been established throghout ISO's history. This dataset includes some unknown missings, as some TCs have been established and then disbanded. 
+
+|              |                                                                                        |
+|--------------|----------------------------------------------------------------------------------------|
+| **Variable** | **Definition**                                                                         |
+| year         | Year of establishment                                                                  |
+| title        | Name of committee                                                                      |
+| committee    | ID of committee                                                                        |
+| sector       | The sector that ISO categorizes the TC into                                            |
+
+\newpage
+
+## Certifications
+
+The ISO Survey of Certifications is an annual survey of the number of valid certificates to ISO management system standards worldwide. The providers of data are the certification bodies accredited by the IAF MLA Members. 
+
+**Disclaimer: **
+The ISO Survey is not a database. The providers of the data are the certification bodies accredited by IAF members and they participate on a voluntary basis. The level of participation fluctuates from one edition of the survey to another and can impact the survey results especially at the country level. Interpretations of the results and any conclusions on the trends should be made with these considerations in mind.
+
+### Survey coverage for all datasets
+
+|                               |                                                                 |                      |                       |
+|---------------|----------------------------|---------------|---------------|
+| **Number of standard family** | **Name of standard family**                                     | **Country coverage** | **Industry coverage** |
+| ISO 9001                      | Quality management systems                                      | 1993-2020            | 1998-2020             |
+| ISO 14000                     | Environmental management                                        | 1999-2020            | 1998-2020             |
+| ISO/IEC 27001                 | Information security management                                 | 2006-2020            | 2006-2020             |
+| ISO 50001                     | Energy management                                               | 2011-2020            | 2015-2020             |
+| ISO 22000                     | Food safety management                                          | 2007-2020            | --                    |
+| ISO 13485                     | Medical devices - Quality management systems                    | 2004-2020            | --                    |
+| ISO 22301                     | Security and resilience                                         | 2014-2020            | 2014-2020             |
+| ISO/IEC 20000-1               | Information technology                                          | 2015-2020            | 2015-2020             |
+| ISO 28000                     | Specification for security management systems for supply chains | 2016-2020            | 2016-2020             |
+| ISO 39001                     | Road traffic safety (RTS) management systems                    | 2016-2020            | 2016-2020             |
+
+### Country certifications
+
+|              |                                                                                         |
+|---------------|---------------------------------------------------------|
+| **Variable** | **Definition**                                                                          |
+| country      | Country name                                                                            |
+| year         | Year of survey                                                                          |
+| certificates | Number of certificates as provided by accredited certification bodies in the ISO Survey |
+| iso          | Code of ISO management standards series                                                 |
+| iso_name     | Name of ISO management standards series                                                 |
+
+### Industry certifications
+
+|              |                                                                                         |
+|---------------|---------------------------------------------------------|
+| **Variable** | **Definition**                                                                          |
+| industry     | Aggregate industry level                                                                |
+| year         | Year of survey                                                                          |
+| certificates | Number of certificates as provided by accredited certification bodies in the ISO Survey |
+| iso          | Code of ISO management standards series                                                 |
+| iso_name     | Name of ISO management standards series                                                 |
+
+### Country and industry certifications
+
+|               |                                                        |
+|---------------|--------------------------------------------------------|
+| **Variable**  | **Definition**                                         |
+| country       | Country name                                           |
+| year          | Year of survey                                         |
+| industry      | Aggregate industry level                               |
+| ISO 9001      | Number of certificates within the ISO 9001 series      |
+| ISO 14001     | Number of certificates within the ISO 9001 series      |
+| ISO/IEC 27001 | Number of certificates within the ISO/IEC 27001 series |

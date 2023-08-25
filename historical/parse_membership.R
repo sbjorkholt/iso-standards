@@ -1,5 +1,5 @@
 
-membertype <- openxlsx::read.xlsx("../../data/members-historical/membership_color.xlsx") %>%
+membertype <- openxlsx::read.xlsx("../raw_data/members-historical/membership_color.xlsx") %>%
   mutate(
     across(everything(), ~replace_na(.x, "U"))
   ) %>%
@@ -12,7 +12,7 @@ membertype <- openxlsx::read.xlsx("../../data/members-historical/membership_colo
                                               origin = "country.name",
                                               destination = "continent"))
 
-memberfunction <- openxlsx::read.xlsx("../../data/members-historical/membership_sign.xlsx") %>%
+memberfunction <- openxlsx::read.xlsx("../raw_data/members-historical/membership_sign.xlsx") %>%
   mutate(
     across(everything(), ~replace_na(.x, "U"))
   ) %>%
@@ -27,4 +27,4 @@ memberfunction <- openxlsx::read.xlsx("../../data/members-historical/membership_
 
 memberships <- left_join(membertype, memberfunction, join_by(country, year, continent))
 
-saveRDS(memberships, file = "../../data/final_data/memberships.rds")
+saveRDS(memberships, file = "../datasets/memberships.rds")

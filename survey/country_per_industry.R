@@ -7,9 +7,9 @@
 
 list_2009 <- list()
 
-for (i in 2:length(readxl::excel_sheets("./Data_per_sector_and_per_country_2009.xls"))) {
+for (i in 2:length(readxl::excel_sheets("../raw_data/ISO survey/Data_per_sector_and_per_country_2009.xls"))) {
   
-  ll <- suppressMessages(readxl::read_xls("./Data_per_sector_and_per_country_2009.xls", sheet = i)) 
+  ll <- suppressMessages(readxl::read_xls("../raw_data/ISO survey/Data_per_sector_and_per_country_2009.xls", sheet = i)) 
   
   names(ll)[2] <- pull(ll[2,][2]) # Rename columns after the value in table
   names(ll)[3] <- pull(ll[2,][3])
@@ -33,9 +33,9 @@ list_2009 <- do.call(rbind, list_2009) |>
 
 list_2010 <- list()
 
-for (i in 2:length(readxl::excel_sheets("./Data_per_sector_and_per_country_2010.xls"))) {
+for (i in 2:length(readxl::excel_sheets("../raw_data/ISO survey/Data_per_sector_and_per_country_2010.xls"))) {
   
-  ll <- suppressMessages(readxl::read_xls("./Data_per_sector_and_per_country_2010.xls", sheet = i)) 
+  ll <- suppressMessages(readxl::read_xls("../raw_data/ISO survey/Data_per_sector_and_per_country_2010.xls", sheet = i)) 
   
   names(ll)[2] <- pull(ll[2,][2]) # Rename columns after the value in table
   names(ll)[3] <- pull(ll[2,][3])
@@ -60,9 +60,9 @@ list_2010 <- do.call(rbind, list_2010) |>
 
 list_2011 <- list()
 
-for (i in 2:length(readxl::excel_sheets("./Data_per_sector_and_per_country_2011.xls"))) {
+for (i in 2:length(readxl::excel_sheets("../raw_data/ISO survey/Data_per_sector_and_per_country_2011.xls"))) {
   
-  ll <- suppressMessages(readxl::read_xls("./Data_per_sector_and_per_country_2011.xls", sheet = i)) 
+  ll <- suppressMessages(readxl::read_xls("../raw_data/ISO survey/Data_per_sector_and_per_country_2011.xls", sheet = i)) 
   
   names(ll)[2] <- pull(ll[2,][2]) # Rename columns after the value in table
   names(ll)[3] <- pull(ll[2,][3])
@@ -87,9 +87,9 @@ list_2011 <- do.call(rbind, list_2011) |>
 
 list_2012 <- list()
 
-for (i in 2:length(readxl::excel_sheets("./Data_per_sector_and_per_country_2012.xlsx"))) {
+for (i in 2:length(readxl::excel_sheets("../raw_data/ISO survey/Data_per_sector_and_per_country_2012.xlsx"))) {
   
-  ll <- suppressMessages(readxl::read_xlsx("./Data_per_sector_and_per_country_2012.xlsx", sheet = i)) 
+  ll <- suppressMessages(readxl::read_xlsx("../raw_data/ISO survey/Data_per_sector_and_per_country_2012.xlsx", sheet = i)) 
   
   names(ll)[2] <- pull(ll[2,][2]) # Rename columns after the value in table
   names(ll)[3] <- pull(ll[2,][3])
@@ -114,9 +114,9 @@ list_2012 <- do.call(rbind, list_2012) |>
 
 list_2013 <- list()
 
-for (i in 3:length(readxl::excel_sheets("./Data_per_sector_and_per_country_2013.xlsx"))) {
+for (i in 3:length(readxl::excel_sheets("../raw_data/ISO survey/Data_per_sector_and_per_country_2013.xlsx"))) {
   
-  ll <- suppressMessages(readxl::read_xlsx("./Data_per_sector_and_per_country_2013.xlsx", sheet = i)) 
+  ll <- suppressMessages(readxl::read_xlsx("../raw_data/ISO survey/Data_per_sector_and_per_country_2013.xlsx", sheet = i)) 
   
   names(ll)[2] <- pull(ll[2,][2]) # Rename columns after the value in table
   names(ll)[3] <- pull(ll[2,][3])
@@ -141,9 +141,9 @@ list_2013 <- do.call(rbind, list_2013) |>
 
 list_2014 <- list()
 
-for (i in 3:length(readxl::excel_sheets("./Data_per_sector_and_per_country_2014.xlsx"))) {
+for (i in 3:length(readxl::excel_sheets("../raw_data/ISO survey/Data_per_sector_and_per_country_2014.xlsx"))) {
   
-  ll <- suppressMessages(readxl::read_xlsx("./Data_per_sector_and_per_country_2014.xlsx", sheet = i)) 
+  ll <- suppressMessages(readxl::read_xlsx("../raw_data/ISO survey/Data_per_sector_and_per_country_2014.xlsx", sheet = i)) 
   
   names(ll)[2] <- pull(ll[2,][2]) # Rename columns after the value in table
   names(ll)[3] <- pull(ll[2,][3])
@@ -168,7 +168,7 @@ list_2014 <- do.call(rbind, list_2014) |>
 
 #### TOO PROBLEMATIC QUALITY FOR USAGE ####
 
-# list_2015_ISO14001 <- readxl::read_xlsx("./Data_per_sector_and_per_country_2015.xlsx", sheet = 5) %>%
+# list_2015_ISO14001 <- readxl::read_xlsx("../raw_data/ISO survey/Data_per_sector_and_per_country_2015.xlsx", sheet = 5) %>%
 #   gather(2:40,
 #          key = "industry", value = "ISO 14001") %>%
 #   rename(country = `Industrial sectors / Countries`) %>%
@@ -176,7 +176,7 @@ list_2014 <- do.call(rbind, list_2014) |>
 #   select(country, year, industry, `ISO 14001`) %>%
 #   mutate(country = str_to_title(country))
 # 
-# list_2015_ISO9001 <- readxl::read_xlsx("./Data_per_sector_and_per_country_2015.xlsx", sheet = 2) %>%
+# list_2015_ISO9001 <- readxl::read_xlsx("../raw_data/ISO survey/Data_per_sector_and_per_country_2015.xlsx", sheet = 2) %>%
 #   gather(2:40,
 #          key = "industry", value = "ISO 9001") %>%
 #   rename(country = `Industrial sectors / Countries`) %>%
@@ -184,7 +184,7 @@ list_2014 <- do.call(rbind, list_2014) |>
 #   select(country, year, industry, `ISO 9001`) %>%
 #   mutate(country = str_to_title(country)) 
 # 
-# list_2015_ISO27001 <- readxl::read_xlsx("./Data_per_sector_and_per_country_2015.xlsx", sheet = 8) %>%
+# list_2015_ISO27001 <- readxl::read_xlsx("../raw_data/ISO survey/Data_per_sector_and_per_country_2015.xlsx", sheet = 8) %>%
 #   gather(2:40,
 #          key = "industry", value = "ISO/IEC 27001") %>%
 #   rename(country = `Industrial sectors / Countries`) %>%
@@ -200,21 +200,21 @@ list_2014 <- do.call(rbind, list_2014) |>
 
 ### 2016 sector and country does not exist
 
-readxl::excel_sheets("./Data_per_sector_and_per_country_2017.xlsx")
+readxl::excel_sheets("../raw_data/ISO survey/Data_per_sector_and_per_country_2017.xlsx")
 
-list_2017_ISO9001 <- readxl::read_xlsx("./Data_per_sector_and_per_country_2017.xlsx", sheet = 2, skip = 1) %>%
+list_2017_ISO9001 <- readxl::read_xlsx("../raw_data/ISO survey/Data_per_sector_and_per_country_2017.xlsx", sheet = 2, skip = 1) %>%
   gather(2:40,
          key = "industry", value = "ISO 9001") %>%
   rename(country = `Land/Sector`) %>%
   mutate(`ISO 9001` = ifelse(is.na(`ISO 9001`)==TRUE, 0, `ISO 9001`))
 
-list_2017_ISO14001 <- readxl::read_xlsx("./Data_per_sector_and_per_country_2017.xlsx", sheet = 3, skip = 1) %>%
+list_2017_ISO14001 <- readxl::read_xlsx("../raw_data/ISO survey/Data_per_sector_and_per_country_2017.xlsx", sheet = 3, skip = 1) %>%
   gather(2:40,
          key = "industry", value = "ISO 14001") %>%
   rename(country = `Land/Sector`) %>%
   mutate(`ISO 14001` = ifelse(is.na(`ISO 14001`)==TRUE, 0, `ISO 14001`))
 
-list_2017_ISOIEC27001 <- readxl::read_xlsx("./Data_per_sector_and_per_country_2017.xlsx", sheet = 4, skip = 1) %>%
+list_2017_ISOIEC27001 <- readxl::read_xlsx("../raw_data/ISO survey/Data_per_sector_and_per_country_2017.xlsx", sheet = 4, skip = 1) %>%
   gather(2:40,
          key = "industry", value = "ISO/IEC 27001") %>%
   rename(country = `Land/Sector`) %>%
@@ -227,14 +227,14 @@ list_2017 <- left_join(list_2017_ISO14001, list_2017_ISOIEC27001) %>% left_join(
   mutate(year = "2017")
 
 
-readxl::excel_sheets("./Data_per_sector_and_per_country_2018.xlsx")
+readxl::excel_sheets("../raw_data/ISO survey/Data_per_sector_and_per_country_2018.xlsx")
 
 list_2018 <- list()
 
 for (i in 2:10) {
   
-  ll <- suppressMessages(readxl::read_excel("./Data_per_sector_and_per_country_2018.xlsx", sheet = i, skip = 2))
-  iso <- readxl::excel_sheets("./Data_per_sector_and_per_country_2018.xlsx")[i] %>%
+  ll <- suppressMessages(readxl::read_excel("../raw_data/ISO survey/Data_per_sector_and_per_country_2018.xlsx", sheet = i, skip = 2))
+  iso <- readxl::excel_sheets("../raw_data/ISO survey/Data_per_sector_and_per_country_2018.xlsx")[i] %>%
     str_to_lower() %>%
     str_replace_all(., " ", "_")
   
@@ -263,8 +263,8 @@ list_2019 <- list()
 
 for (i in 2:10) {
   
-  ll <- suppressMessages(readxl::read_excel("./Data_per_sector_and_per_country_2019.xlsx", sheet = i, skip = 2))
-  iso <- readxl::excel_sheets("./Data_per_sector_and_per_country_2019.xlsx")[i] %>%
+  ll <- suppressMessages(readxl::read_excel("../raw_data/ISO survey/Data_per_sector_and_per_country_2019.xlsx", sheet = i, skip = 2))
+  iso <- readxl::excel_sheets("../raw_data/ISO survey/Data_per_sector_and_per_country_2019.xlsx")[i] %>%
     str_to_lower() %>%
     str_replace_all(., " ", "_")
   
@@ -293,8 +293,8 @@ list_2020 <- list()
 
 for (i in 2:10) {
   
-  ll <- suppressMessages(readxl::read_excel("./Data_per_sector_and_per_country_2020.xlsx", sheet = i, skip = 2))
-  iso <- readxl::excel_sheets("./Data_per_sector_and_per_country_2020.xlsx")[i] %>%
+  ll <- suppressMessages(readxl::read_excel("../raw_data/ISO survey/Data_per_sector_and_per_country_2020.xlsx", sheet = i, skip = 2))
+  iso <- readxl::excel_sheets("../raw_data/ISO survey/Data_per_sector_and_per_country_2020.xlsx")[i] %>%
     str_to_lower() %>%
     str_replace_all(., " ", "_")
   
@@ -338,10 +338,10 @@ country_per_industry_certifications_2018_2020 <- bind_rows(all_2018,
                                                            all_2020)
 
 saveRDS(country_per_industry_certifications_2009_2020, file = 
-          "C:/Users/solvebjo/OneDrive - Universitetet i Oslo/PhD/Paper 2 - Standards/after_feedback/data/final_data/country_per_industry_certifications_2009_2020.rds")
+          "../datasets/country_per_industry_certifications_2009_2020.rds")
 
 saveRDS(country_per_industry_certifications_2018_2020, 
-        file = "C:/Users/solvebjo/OneDrive - Universitetet i Oslo/PhD/Paper 2 - Standards/after_feedback/data/final_data/country_per_industry_certifications_2018_2020.rds")
+        file = "../datasets/country_per_industry_certifications_2018_2020.rds")
 
 
 
