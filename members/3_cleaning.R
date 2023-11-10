@@ -304,7 +304,7 @@ participants <- memberships %>%
   ungroup()
 
 participants %>%
-  #na.omit() %>%
+  na.omit() %>%
   mutate(` ` = ifelse(impute == 0, "Original", "Imputed")) %>%
   ggplot(aes(year, country, fill = ` `)) +
   scale_fill_manual(values = c("gray", "black")) +
@@ -315,7 +315,7 @@ participants %>%
   theme(legend.position = "bottom",
         axis.text.y = element_text(size = 6))
 
-#ggsave("../figures/imputations.png", width = 10, height = 12)
+#ggsave("../figures/imputations_members.png", width = 10, height = 12)
 
 
 ## Sectors 

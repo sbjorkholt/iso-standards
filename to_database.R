@@ -20,6 +20,26 @@ liaison <- readRDS("./datasets/liaison.rds")
 ## Standards
 standards <- readRDS("./datasets/standards_df.rds")
 
+sectors <- readRDS("./datasets/sectors.rds") %>%
+  unnest() %>%
+  ungroup()
+
+# standards <- left_join(standards, sectors, by = join_by(committee))
+# 
+# na_sectors <- standards %>%
+#   distinct() %>% 
+#   filter(is.na(sector))
+# 
+# na_sectors_filled <- na_sectors %>% 
+#   select(-sector) %>%
+#   mutate(committee2 = str_remove(committee, "\\/SC.*")) %>%
+#   left_join(sectors, by = c("committee2" = "committee")) %>%
+#   select(-committee2)
+# 
+# standards <- standards %>%
+#   anti_join(na_sectors, by = join_by(committee, title)) %>%
+#   bind_rows(na_sectors_filled)
+
 ICS_df <- standards %>%
   select(stdno, rowid, ICS) %>%
   unnest_longer(col = ICS) %>%
@@ -120,8 +140,10 @@ historical_memberships <- readRDS("./datasets/memberships.rds") %>%
 historical_tc_creation <- readRDS("./datasets/tc_creation.rds") %>%
   unnest() %>%
   ungroup() %>%
-  rename(year = creation_date) %>%
+  mutate(year = as.numeric(year)) %>%
+  drop_na(year) %>%
   left_join(sectors) %>%
+  filter(!str_detect(title, "To organize")) %>%
   select(year, title, committee, sector)
 
 #### Database ####

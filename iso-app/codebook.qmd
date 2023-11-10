@@ -1,7 +1,7 @@
 ---
 title: "StanDat Codebook"
 subtitle: "International Standards Database"
-author: "Solveig Bjørkholt"
+#author: "Solveig Bjørkholt"
 toc: true
 format: html
   # pdf:

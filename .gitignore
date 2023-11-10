@@ -50,3 +50,5 @@ iso_app/rsconnect
 iso_app/.rsconnect_profile
 iso_app/codebook_files/
 figures/
+Analysis/
+*.sqlite
