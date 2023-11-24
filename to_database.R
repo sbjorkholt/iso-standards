@@ -12,7 +12,7 @@ library(RSQLite)
 #### Load data ####
 
 ## Participants
-participants <- readRDS("./datasets/participants.rds")
+participants <- readRDS("./datasets/participation.rds")
 
 ## Liaison
 liaison <- readRDS("./datasets/liaison.rds")

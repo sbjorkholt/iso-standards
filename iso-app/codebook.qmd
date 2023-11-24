@@ -1,6 +1,6 @@
 ---
 title: "StanDat Codebook"
-subtitle: "International Standards Database"
+subtitle: "A database on international standards"
 #author: "Solveig Bjørkholt"
 toc: true
 format: html
@@ -26,9 +26,9 @@ source("codebook-descriptions.R")
 
 \newpage
 
-## The International Standards Database
+## Overview
 
-The International Standards Database (StanDat) consists of several datasets that covers several aspects of the landscape of international standards. Specifically, the database is designed to answer questions relating to the *process*, the *endorsement* and the *outcome* of standards. The database is based on data from the International Standardization Organization. Although there are many standardization organizations, ISO is the largest on the international arena. For more information on ISO, visit www.iso.org.
+StanDat consists of several datasets that covers several aspects of the landscape of international standards. The database is based on data from the International Standardization Organization (ISO). For more information on ISO, visit www.iso.org. For more information on the dataset, see this paper.
 
 The database is categorized into 'Standards', 'Participation', 'Historical' and 'Certifications', each category with 2-3 datasets. 
 
@@ -50,6 +50,8 @@ overall_cb %>% kable() %>% kable_styling(full_width = TRUE) %>%
 ```
 
 ## Standards
+
+Coverage: 1947 - 2023
 
 These datasets have standards as units, and gives information on when standards were published, the status of the standard, how large they are (in pages), which edition the standard is on, their International Classification for Standards code (ICS) (see https://www.iso.org/standards-catalogue/browse-by-ics.html), abstracts, sustainable developemnt goals that the standard fulfills, and the life cycle of the standard. 
 
@@ -112,11 +114,11 @@ Process of stages for standard, as given by <https://www.iso.org/stage-codes.ht
 
 ## Participation
 
+Coverage: 2002 - 2023
+
 These datasets include information on the actors that participate in the production of standards. Standards are produced in various technical committees (TC) that are established based on demand from stakeholders, and proposed by national member bodies. To establish a technical committee, a member body sends a proposal which is then circulated among the other ISO members. At least five other member bodies have to vote in favor for the TC to be established. Those in favor take the role of P-members, and usually, the country responsible for the proposal takes the secretariat. Proposal drafts are often, in the first place, requests from other national actors.
 
 ### Countries (member bodies)
-
-Coverage: 2004 - 2023
 
 There are three member categories – full member, correspondent member and subscriber member. Only full members can become P-members (participating members) in TCs, and only P-members are able to participate actively in the technical work of the committee. Observing members are allows to follow the process but are not able to participate.
 
@@ -130,38 +132,33 @@ There are three member categories – full member, correspondent member and subs
 | committee    | Number of the TC the country participates in                                                                  |
 | title        | Name of the TC the country participates in                                                                    |
 | membership   | Type of membership, either participating (P-member), observing (O-member), secretariat or twinned secretariat |
-| standby      | Whether the TC was set to standby in the given year                                                           |
 | impute       | Whether memberships were imputed from the previous year                                                       |
 | sector       | The sector that ISO categorizes the TC into                                                                   |
 
 ### Organizations (liaison)
-
-Coverage: 2002 - 2023
 
 Among organizations in liaison, there are four member categories, A, B, C and D, depending on how involved the organizations are in the standardization process. 
 
 Using the acronym is more reliable than using the name, as the name has been more often subject to change as webpages change.
 
 |               |                                                                                                                                                                                                       |
-|-------------|-----------------------------------------------------------|
-| **Variable**  | **Definition**                                                                                                                                                                                        |
-| acronym       | Organization's acronym                                                                                                                                                                                |
-| name          | Name of organization                                                                                                                                                                                  |
-| year          | Year of liaison                                                                                                                                                                                       |
-| country       | Country where the organization is located (fetched from address)                                                                                                                                      |
-| category      | Category of the organization of either industry, consultant and registrar, standards organization, government, research, NGO, financial institutions, media, intergovernmental organizations or other |
-| category_text | Category given in text                                                                                                                                                                                |
-| description   | Description of given category                                                                                                                                                                         |
-| justification | Justification from ChatGPT of why the given organization fits into the given category                                                                                                                 |
-| committee     | Number of the committee that the organization was in liaison with                                                                                                                                     |
-| title         | Name of the committee that the organization was in liaison with                                                                                                                                       |
-| type          | Type of liaison for the given organization                                                                                                                                                            |
-| impute        | Whether the membership in given committee was imputed using k-nearest neighbor methods                                                                                                                |
-| sector        | The sector that ISO categorizes the TC into                                                                                                                                                           |
+|---------------|-------------------------------------------------------------------------------|
+| **Variable**  | **Definition**                                                                |                                                                                                                       
+| acronym       | Organization's acronym                                                        |                                                                                                                       
+| name          | Name of organization                                                          |                                                                                                                       
+| year          | Year of liaison                                                               |                                                                                                                       
+| country       | Country where the organization is located (fetched from address)              |                                                                                                                        
+| committee     | Number of the committee that the organization was in liaison with             |                                                                                                                       
+| title         | Name of the committee that the organization was in liaison with               |                                                                                                                        
+| type          | Type of liaison for the given organization                                    |                                                                                                                        
+| impute        | Whether the membership in given committee was imputed                         |
+| sector        | The sector that ISO categorizes the TC into                                   |                                                                                                                       
 
 \newpage
 
 ## Historical
+
+Coverage: 1947 - 2023
 
 These datasets show the development of the International Standardization Organization over time in terms of members and technical committees.
 
@@ -193,6 +190,8 @@ Technical committees have been established throghout ISO's history. This dataset
 \newpage
 
 ## Certifications
+
+Coverage: Varying
 
 The ISO Survey of Certifications is an annual survey of the number of valid certificates to ISO management system standards worldwide. The providers of data are the certification bodies accredited by the IAF MLA Members. 
 

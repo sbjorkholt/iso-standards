@@ -48,7 +48,7 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#the-international-standards-database" id="toc-the-international-standards-database" class="nav-link active" data-scroll-target="#the-international-standards-database">The International Standards Database</a></li>
+  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a></li>
   <li><a href="#standards" id="toc-standards" class="nav-link" data-scroll-target="#standards">Standards</a>
   <ul class="collapse">
   <li><a href="#status" id="toc-status" class="nav-link" data-scroll-target="#status">Status</a></li>
@@ -80,7 +80,7 @@ ul.task-list li input[type="checkbox"] {
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
 <h1 class="title">StanDat Codebook</h1>
-<p class="subtitle lead">International Standards Database</p>
+<p class="subtitle lead">A database on international standards</p>
 </div>
 
 
@@ -96,9 +96,9 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 <div style="page-break-after: always;"></div>
-<section id="the-international-standards-database" class="level2">
-<h2 class="anchored" data-anchor-id="the-international-standards-database">The International Standards Database</h2>
-<p>The International Standards Database (StanDat) consists of several datasets that covers several aspects of the landscape of international standards. Specifically, the database is designed to answer questions relating to the <em>process</em>, the <em>endorsement</em> and the <em>outcome</em> of standards. The database is based on data from the International Standardization Organization. Although there are many standardization organizations, ISO is the largest on the international arena. For more information on ISO, visit www.iso.org.</p>
+<section id="overview" class="level2">
+<h2 class="anchored" data-anchor-id="overview">Overview</h2>
+<p>StanDat consists of several datasets that covers several aspects of the landscape of international standards. The database is based on data from the International Standardization Organization (ISO). For more information on ISO, visit www.iso.org. For more information on the dataset, see this paper.</p>
 <p>The database is categorized into ‘Standards’, ‘Participation’, ‘Historical’ and ‘Certifications’, each category with 2-3 datasets.</p>
 <div class="cell-output-display">
 <table class="table" data-quarto-postprocess="true">
@@ -148,6 +148,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="standards" class="level2">
 <h2 class="anchored" data-anchor-id="standards">Standards</h2>
+<p>Coverage: 1947 - 2023</p>
 <p>These datasets have standards as units, and gives information on when standards were published, the status of the standard, how large they are (in pages), which edition the standard is on, their International Classification for Standards code (ICS) (see https://www.iso.org/standards-catalogue/browse-by-ics.html), abstracts, sustainable developemnt goals that the standard fulfills, and the life cycle of the standard.</p>
 <section id="status" class="level3">
 <h3 class="anchored" data-anchor-id="status">Status</h3>
@@ -308,10 +309,10 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="participation" class="level2">
 <h2 class="anchored" data-anchor-id="participation">Participation</h2>
+<p>Coverage: 2002 - 2023</p>
 <p>These datasets include information on the actors that participate in the production of standards. Standards are produced in various technical committees (TC) that are established based on demand from stakeholders, and proposed by national member bodies. To establish a technical committee, a member body sends a proposal which is then circulated among the other ISO members. At least five other member bodies have to vote in favor for the TC to be established. Those in favor take the role of P-members, and usually, the country responsible for the proposal takes the secretariat. Proposal drafts are often, in the first place, requests from other national actors.</p>
 <section id="countries-member-bodies" class="level3">
 <h3 class="anchored" data-anchor-id="countries-member-bodies">Countries (member bodies)</h3>
-<p>Coverage: 2004 - 2023</p>
 <p>There are three member categories – full member, correspondent member and subscriber member. Only full members can become P-members (participating members) in TCs, and only P-members are able to participate actively in the technical work of the committee. Observing members are allows to follow the process but are not able to participate.</p>
 <table class="table">
 <colgroup>
@@ -348,14 +349,10 @@ ul.task-list li input[type="checkbox"] {
 <td>Type of membership, either participating (P-member), observing (O-member), secretariat or twinned secretariat</td>
 </tr>
 <tr class="even">
-<td>standby</td>
-<td>Whether the TC was set to standby in the given year</td>
-</tr>
-<tr class="odd">
 <td>impute</td>
 <td>Whether memberships were imputed from the previous year</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>sector</td>
 <td>The sector that ISO categorizes the TC into</td>
 </tr>
@@ -364,13 +361,12 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="organizations-liaison" class="level3">
 <h3 class="anchored" data-anchor-id="organizations-liaison">Organizations (liaison)</h3>
-<p>Coverage: 2002 - 2023</p>
 <p>Among organizations in liaison, there are four member categories, A, B, C and D, depending on how involved the organizations are in the standardization process.</p>
 <p>Using the acronym is more reliable than using the name, as the name has been more often subject to change as webpages change.</p>
 <table class="table">
 <colgroup>
-<col style="width: 18%">
-<col style="width: 81%">
+<col style="width: 15%">
+<col style="width: 84%">
 </colgroup>
 <tbody>
 <tr class="odd">
@@ -394,22 +390,6 @@ ul.task-list li input[type="checkbox"] {
 <td>Country where the organization is located (fetched from address)</td>
 </tr>
 <tr class="even">
-<td>category</td>
-<td>Category of the organization of either industry, consultant and registrar, standards organization, government, research, NGO, financial institutions, media, intergovernmental organizations or other</td>
-</tr>
-<tr class="odd">
-<td>category_text</td>
-<td>Category given in text</td>
-</tr>
-<tr class="even">
-<td>description</td>
-<td>Description of given category</td>
-</tr>
-<tr class="odd">
-<td>justification</td>
-<td>Justification from ChatGPT of why the given organization fits into the given category</td>
-</tr>
-<tr class="even">
 <td>committee</td>
 <td>Number of the committee that the organization was in liaison with</td>
 </tr>
@@ -423,7 +403,7 @@ ul.task-list li input[type="checkbox"] {
 </tr>
 <tr class="odd">
 <td>impute</td>
-<td>Whether the membership in given committee was imputed using k-nearest neighbor methods</td>
+<td>Whether the membership in given committee was imputed</td>
 </tr>
 <tr class="even">
 <td>sector</td>
@@ -436,6 +416,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="historical" class="level2">
 <h2 class="anchored" data-anchor-id="historical">Historical</h2>
+<p>Coverage: 1947 - 2023</p>
 <p>These datasets show the development of the International Standardization Organization over time in terms of members and technical committees.</p>
 <section id="members" class="level3">
 <h3 class="anchored" data-anchor-id="members">Members</h3>
@@ -509,6 +490,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="certifications" class="level2">
 <h2 class="anchored" data-anchor-id="certifications">Certifications</h2>
+<p>Coverage: Varying</p>
 <p>The ISO Survey of Certifications is an annual survey of the number of valid certificates to ISO management system standards worldwide. The providers of data are the certification bodies accredited by the IAF MLA Members.</p>
 <p><strong>Disclaimer: </strong> The ISO Survey is not a database. The providers of the data are the certification bodies accredited by IAF members and they participate on a voluntary basis. The level of participation fluctuates from one edition of the survey to another and can impact the survey results especially at the country level. Interpretations of the results and any conclusions on the trends should be made with these considerations in mind.</p>
 <section id="survey-coverage-for-all-datasets" class="level3">

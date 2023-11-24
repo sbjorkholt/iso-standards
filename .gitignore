@@ -52,3 +52,6 @@ iso_app/codebook_files/
 figures/
 Analysis/
 *.sqlite
+validation/data
+validation/documents
+liaison/organization_type/

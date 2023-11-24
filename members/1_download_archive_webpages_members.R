@@ -138,31 +138,6 @@ walk2(urls, ids, function(link, id) {
 ##### FOURTH VERSION #####
 #### 2017 - 2023 ####
 
-### TC ###
-query <- cdx_basic_query("https://www.iso.org/committee/", match_type = "prefix", collapse = NULL) %>%
-  filter(str_detect(original, "view=participation"))
-urls <- query %>% mutate(url = str_c("http://web.archive.org/", str_replace_all(as.character(timestamp), "-", ""), "000000/", original)) %>% pull(url)
-
-tc <- urls %>% str_extract("committee\\/[0-9]+") %>% str_remove("committee\\/")
-dates <- query %>% pull(timestamp)
-ids <- str_c(tc, "_", dates)
-
-walk2(urls, ids, function(link, id) {
-  
-  destfile <- paste0("../raw_data/archive_members/version4/tc_site/", id, ".htm")
-  
-  if(!file.exists(destfile)){
-    
-    tryCatch({
-      download.file(link, destfile = destfile, quiet = TRUE)
-      Sys.sleep(5)
-    }, error=function(e){message("Problematic page, skipped ", id)})
-    
-  }
-})
-
-### MEMBER ###
-
 query <- cdx_basic_query("https://www.iso.org/member/", match_type = "prefix", collapse = NULL) %>%
   filter(str_detect(original, "view=participation"))
 urls <- query %>% mutate(url = str_c("http://web.archive.org/", str_replace_all(as.character(timestamp), "-", ""), "000000/", original)) %>% pull(url)

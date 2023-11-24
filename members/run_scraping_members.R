@@ -25,7 +25,9 @@ source("1_download_archive_webpages_members.R")
 ## STEP 2:
 # Parse from the webpages info on each member and add to dataframe
 
-source("2_exctract_members.R")
+source("2_1_exctract_members.R")
+
+source("2_2_tc_version.R")
 
 
 ## STEP 3:
